@@ -17,8 +17,10 @@
 |---|---|---|
 | โปรโมชัน - รายการ (Prototype) | [1515:7251](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=1515-7251) | `frontend/#/promotions` |
 | โปรโมชัน - รายละเอียด (Prototype) | [1515:7342](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=1515-7342) | `frontend/#/promotions/structural-5` |
+| Screen-Promotions (Prototype) — Mobile | [1531:7370](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=1531-7370) | `mobile/#/promotions` |
+| Screen-Promotion-Detail (Prototype) — Mobile | [1531:7456](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=1531-7456) | `mobile/#/promotions/structural-5` |
 
-ทั้งสองเฟรมอยู่ใน Section Front End แถวเดียวกับเฟรม "โปรโมชัน" (1401:24154) ที่ทีมทำไว้ ชื่อเฟรมลงท้ายด้วย `(Prototype)` เพื่อแยกจากงานของดีไซเนอร์ และไม่ได้แก้เฟรมเดิมของทีม
+เฟรมเว็บอยู่ใน Section Front End แถวเดียวกับเฟรม "โปรโมชัน" (1401:24154) ที่ทีมทำไว้ ชื่อเฟรมลงท้ายด้วย `(Prototype)` เพื่อแยกจากงานของดีไซเนอร์ และไม่ได้แก้เฟรมเดิมของทีม
 
 ## โครงสร้างโปรเจกต์
 
@@ -40,6 +42,12 @@
 - `frontend/` เคยเป็น repo แยก (`hachiiz/TheSteelFrontend`, deploy ที่ thesteelfrontend.vercel.app) ประวัติ git เดิมเก็บไว้ที่ `../TheSteelFrontend-git-backup`
 
 ## บันทึกการทำงาน
+
+### 2026-10-01 — หน้าโปรโมชัน Mobile ให้เหมือน Front End + เฟรม Figma
+
+- Mobile เพิ่ม `#/promotions` และ `#/promotions/:id` (`mobile/js/pages.js` ท้ายไฟล์) เนื้อหาชุดเดียวกับเว็บ (`PROMOS` / `COUPONS` ใน store ที่ใช้ร่วมกัน): หัวข้อ คำอธิบาย เงื่อนไข วิธีใช้ โค้ดพร้อมปุ่มคัดลอก (`UI.copyText`) ปุ่ม "ใช้โค้ดนี้กับตะกร้า" สินค้าที่ร่วมรายการ และโปรโมชันอื่น
+- การ์ดโปรโมชันบนหน้าแรก Mobile และลูกศร "ดูทั้งหมด" ลิงก์มาหน้าใหม่; ตะกร้าที่ยังไม่ใช้โค้ดลิงก์ไปหน้าโปรโมชัน
+- Figma: เฟรม Mobile 2 เฟรม (ดูตารางเฟรมด้านบน) วางใต้ Screen-Homepage ใน Section Mobile และขยายความสูง Section ให้พอดี ใช้ Mobile-Header, Bottom-Nav-Wrapper และ product-grid เดิมของไฟล์
 
 ### 2026-10-01 — เอาตัวเลือก "ปรับเปลี่ยนจำนวนจริง (=)" ออก (Back Office)
 

@@ -114,5 +114,17 @@
     });
   }
 
-  window.UI = { icon, $, $$, A, pcard, bindCarousel, stepper, summaryCard, sheet, formSheet, toast, requireLogin };
+  // Copy text, falling back to a hidden textarea where the async clipboard API is unavailable (e.g. file://).
+  function copyText(text) {
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove();
+      return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+    };
+    return navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(text).catch(fallback) : fallback();
+  }
+
+  window.UI = { copyText, icon, $, $$, A, pcard, bindCarousel, stepper, summaryCard, sheet, formSheet, toast, requireLogin };
 })();

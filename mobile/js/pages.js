@@ -8,8 +8,8 @@
   // ---------- หน้าหลัก ----------
   PAGES.home = function (root) {
     root.innerHTML = `
-      <div class="sec-head"><h2>โปรโมชัน</h2><a href="#/products" aria-label="ดูโปรโมชันทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
-      <div class="hscroll" data-c="promo">${PROMOS.map((p) => `<a class="post" href="#/products"><img src="${A(p.img)}" alt=""><div class="b"><b>${esc(p.title)}</b><span>${esc(p.sub)}</span><small>สิ้นสุด ${p.end}</small></div></a>`).join('')}</div>
+      <div class="sec-head"><h2>โปรโมชัน</h2><a href="#/promotions" aria-label="ดูโปรโมชันทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
+      <div class="hscroll" data-c="promo">${PROMOS.map((p) => `<a class="post" href="#/promotions/${p.id}"><img src="${A(p.img)}" alt=""><div class="b"><b>${esc(p.title)}</b><span>${esc(p.sub)}</span><small>สิ้นสุด ${p.end}</small></div></a>`).join('')}</div>
       <div class="dots" data-d="promo"></div>
       <div class="sec-head"><h2>หมวดหมู่</h2><a href="#/products" aria-label="ดูหมวดหมู่ทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
       <div class="hscroll" data-c="cat">${CATEGORIES.map((c) => `<a class="cat" href="#/products?cat=${c.id}"><img src="${A(c.img)}" alt=""><b>${c.name}</b><span>${c.desc}</span></a>`).join('')}</div>
@@ -140,7 +140,7 @@
       <div class="card" style="margin-bottom:12px;padding:20px 24px"><h2 style="font-size:24px;margin-bottom:12px">ส่วนลด</h2>
         <form data-coupon style="display:flex;gap:8px"><input class="input" name="code" style="border-color:var(--primary)" value="${esc(s.coupon || '')}" placeholder="กรอกโค้ดส่วนลด"><button class="btn btn-primary" style="width:60px">เพิ่ม</button></form>
         ${c ? `<div class="blue-box" style="margin-top:12px"><b style="color:var(--primary);font-size:17px">${c.label}</b><div class="muted">ขั้นต่ำ ${money(c.min)} บาท</div>${t.couponNote ? `<div style="color:var(--danger);font-size:13px">${esc(t.couponNote)}</div>` : ''}<div class="muted" style="font-size:12px">ใช้ได้ถึง : ${c.until}</div>
-          <div style="display:flex;gap:16px;margin-top:4px"><a style="color:var(--primary);text-decoration:underline" data-terms>เงื่อนไข</a><a style="color:var(--danger);text-decoration:underline" data-rmc>ลบโค้ด</a></div></div>` : '<p class="muted" style="font-size:13px;margin-top:8px">ลองใช้โค้ด SALE10</p>'}
+          <div style="display:flex;gap:16px;margin-top:4px"><a style="color:var(--primary);text-decoration:underline" data-terms>เงื่อนไข</a><a style="color:var(--danger);text-decoration:underline" data-rmc>ลบโค้ด</a></div></div>` : '<p class="muted" style="font-size:13px;margin-top:8px">ดูโค้ดส่วนลดได้ที่ <a href="#/promotions" style="color:var(--primary);text-decoration:underline">หน้าโปรโมชัน</a></p>'}
       </div>
       ${s.cart.map((l, i) => { const x = SHOP.lineInfo(l); const on = l.sel && !x.out; return `<div class="citem ${on ? 'sel' : ''} ${x.out ? 'out' : ''}">
         <label class="check"><input type="checkbox" data-sel="${i}" ${on ? 'checked' : ''} ${x.out ? 'disabled' : ''} aria-label="เลือก"></label>
@@ -428,5 +428,66 @@
         <tbody>${rows.map(([l, f]) => `<tr><td>${l}</td>${items.map((p) => `<td>${f(p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
       <p class="muted" style="font-size:12px;margin-top:8px">← เลื่อนตารางไปทางซ้าย-ขวาเพื่อดูสินค้าทั้งหมด</p>
       ${items.length < 4 ? '<a class="btn" style="margin-top:12px" href="#/products">+ เพิ่มสินค้าเปรียบเทียบ</a>' : ''}`;
+  };
+})();
+
+// ---------- โปรโมชัน (list + detail, same content as the website) ----------
+(function () {
+  const { esc, money, product, PROMOS, COUPONS, actions } = SHOP;
+  const { icon, $, A, pcard, toast, copyText } = UI;
+
+  const codeBox = (code, big) => `<div class="code-box${big ? ' big' : ''}"><span class="code">${code}</span><button class="btn btn-primary" data-copy-code="${code}">คัดลอกโค้ด</button></div>`;
+  function bindCopy(root) {
+    root.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-copy-code]');
+      if (!b) return;
+      e.preventDefault();
+      const code = b.dataset.copyCode;
+      copyText(code).then(() => {
+        toast(`คัดลอกโค้ด ${code} แล้ว`, 'ok', ' <a href="#/cart">ไปที่ตะกร้า</a>');
+        b.textContent = 'คัดลอกแล้ว ✓'; b.classList.add('copied');
+        setTimeout(() => { b.textContent = 'คัดลอกโค้ด'; b.classList.remove('copied'); }, 2000);
+      }, () => toast('คัดลอกไม่สำเร็จ — กรุณาคัดลอกโค้ดด้วยตนเอง', 'warn'));
+    });
+  }
+
+  PAGES.promotions = function (root) {
+    root.innerHTML = `<p class="muted" style="font-size:14px;margin-bottom:12px">คัดลอกโค้ดไปใช้ที่ช่อง “ส่วนลด” ในตะกร้าได้ทันที</p>
+      ${PROMOS.map((p) => `<article class="promo-card">
+        <a href="#/promotions/${p.id}" class="promo-img"><img src="${A(p.img)}" alt=""><span class="promo-badge">${esc(p.badge)}</span></a>
+        <div class="promo-body"><a href="#/promotions/${p.id}"><h2>${esc(p.title)}</h2></a><p>${esc(p.sub)}</p>
+          <small class="muted">${icon('clock', 13)} ใช้ได้ถึง ${p.end}</small>
+          ${codeBox(p.code)}
+          <a class="promo-more" href="#/promotions/${p.id}">ดูรายละเอียดและเงื่อนไข ${icon('chevRight', 14, 2.4)}</a></div></article>`).join('')}`;
+    bindCopy(root);
+  };
+
+  PAGES.promotion = function (root, { id }) {
+    const p = PROMOS.find((x) => x.id === id);
+    if (!p) { root.innerHTML = '<div class="empty">ไม่พบโปรโมชัน<a class="btn btn-primary" href="#/promotions">ดูโปรโมชันทั้งหมด</a></div>'; return; }
+    const c = COUPONS[p.code], inUse = SHOP.state.coupon === p.code;
+    root.innerHTML = `
+      <section class="promo-hero"><img src="${A(p.img)}" alt=""><div><span class="promo-badge">${esc(p.badge)}</span><h1>${esc(p.title)}</h1><p>${esc(p.sub)}</p>
+        <span class="promo-dates">${icon('clock', 13)} ${p.start} – ${p.end}</span></div></section>
+      <div class="card" style="margin-top:12px"><div class="muted" style="font-size:13px">โค้ดส่วนลด</div>${codeBox(p.code, true)}
+        <button class="btn" data-apply ${inUse ? 'disabled' : ''}>${inUse ? '✓ ใช้โค้ดนี้อยู่ในตะกร้าแล้ว' : 'ใช้โค้ดนี้กับตะกร้า'}</button>
+        <hr class="hr"><div class="kv"><span class="muted">ส่วนลด</span><b style="text-align:right">${esc(c.label)}</b></div>
+        <div class="kv"><span class="muted">ยอดขั้นต่ำ</span><span>${c.min ? `${money(c.min)} บาท` : 'ไม่มีขั้นต่ำ'}</span></div>
+        <div class="kv"><span class="muted">ใช้ได้ถึง</span><span>${c.until}</span></div></div>
+      <div class="card promo-detail">
+        <h3>รายละเอียดโปรโมชัน</h3><p>${esc(p.desc)}</p>
+        <h3>เงื่อนไขการใช้โค้ด</h3><ul>${p.conditions.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+        <h3>วิธีใช้โค้ด</h3>
+        <ol class="promo-steps"><li><b>คัดลอกโค้ด</b><span>กดปุ่ม “คัดลอกโค้ด” ด้านบน</span></li><li><b>เลือกสินค้า</b><span>เพิ่มสินค้าที่ร่วมรายการลงตะกร้า</span></li><li><b>ใช้โค้ดในตะกร้า</b><span>วางโค้ดที่ช่อง “ส่วนลด” แล้วกด “เพิ่ม”</span></li></ol></div>
+      <div class="sec-head"><h2>สินค้าที่ร่วมรายการ</h2></div>
+      <div class="pgrid">${p.products.map(product).filter(Boolean).slice(0, 4).map(pcard).join('')}</div>
+      <div class="sec-head"><h2>โปรโมชันอื่น</h2><a href="#/promotions" aria-label="ดูโปรโมชันทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
+      <div class="hscroll">${PROMOS.filter((x) => x.id !== p.id).map((x) => `<a class="post" href="#/promotions/${x.id}"><img src="${A(x.img)}" alt=""><div class="b"><b>${esc(x.title)}</b><span>${esc(x.sub)}</span><small>สิ้นสุด ${x.end}</small></div></a>`).join('')}</div>`;
+    bindCopy(root);
+    $('[data-apply]', root).addEventListener('click', () => {
+      actions.applyCoupon(p.code);
+      toast(`ใช้โค้ด ${p.code} กับตะกร้าแล้ว`, 'ok', ' <a href="#/cart">ดูตะกร้า</a>');
+      APP.refresh();
+    });
   };
 })();
