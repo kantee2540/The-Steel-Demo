@@ -4,8 +4,11 @@
 
   // ---------- จัดการสินค้า (category accordion) ----------
   PAGES.products = function (root) {
-    const open = new Set([4]);
+    const open = new Set(); // all categories start collapsed
     let q = '';
+    // Pagination state per category: { page, size }.
+    const pg = {};
+    const pageOf = (id) => (pg[id] = pg[id] || { page: 1, size: 10 });
     root.innerHTML = `
       ${pageHead('จัดการสินค้า', `<a class="btn btn-primary" href="#/products/category/new">${icon('plus', 18)} เพิ่มหมวดหมู่ใหม่</a>`)}
       <div class="filters"><div class="field"><label for="cat-q">ค้นหาหมวดหมู่สินค้า หรือรายการสินค้า</label>${searchInput('cat-q', 'ชื่อหมวดหมู่สินค้า / ชื่อสินค้า')}</div></div>
@@ -13,6 +16,25 @@
         <thead><tr><th style="width:40%">ชื่อหมวดหมู่สินค้า</th><th style="width:30%">จำนวนสินค้า</th><th>จัดการ</th></tr></thead><tbody></tbody></table></div>
         ${pagerHtml(DB.categories.length, 1, 10)}</div>`;
     const tbody = $('tbody', root);
+
+    function pageSlice(id, items) {
+      const st = pageOf(id);
+      st.page = Math.min(st.page, Math.max(1, Math.ceil(items.length / st.size))); // stay in range after delete/search
+      return items.slice((st.page - 1) * st.size, st.page * st.size);
+    }
+    // Pager for the product lines inside one category (own data-* names so it never clashes with the outer table).
+    function itemPager(id, total) {
+      const { page, size } = pageOf(id);
+      const pages = Math.max(1, Math.ceil(total / size));
+      const from = (page - 1) * size + 1, to = Math.min(total, page * size);
+      let nums = '';
+      for (let i = 1; i <= pages; i++) nums += `<button data-ipage="${id}|${i}" class="${i === page ? 'on' : ''}">${i}</button>`;
+      return `<div class="pager" style="padding:12px 16px;margin:0">
+        <div class="info">แสดงรายการ ${from}-${to} จากทั้งหมด ${total} รายการ
+          <select class="select" data-isize="${id}" aria-label="จำนวนรายการต่อหน้า">${[5, 10, 20, 50].map((n) => `<option value="${n}"${n === size ? ' selected' : ''}>${n} รายการต่อหน้า</option>`).join('')}</select></div>
+        <div class="pages"><button class="nav" data-ipage="${id}|${page - 1}" ${page <= 1 ? 'disabled' : ''}>ก่อนหน้า</button>${nums}
+          <button class="nav" data-ipage="${id}|${page + 1}" ${page >= pages ? 'disabled' : ''}>ถัดไป</button></div></div>`;
+    }
 
     function render() {
       const ql = q.trim().toLowerCase();
@@ -22,33 +44,39 @@
         const items = c.items.filter((it) => !ql || c.name.toLowerCase().includes(ql) || (it[0] + it[1]).toLowerCase().includes(ql));
         return `<tr class="cat-row row-click${isOpen ? ' open' : ''}" data-cat="${c.id}">
             <td><span class="tog">${icon('chevDown', 18, 2)}</span>${esc(c.name)}</td>
-            <td class="muted">${c.count} รายการ</td>
+            <td class="muted">${c.items.length} รายการ</td>
             <td class="actions-cell"><a href="#/products/category/${c.id}">แก้ไข</a><a class="link-danger" data-del-cat="${c.id}">ลบ</a></td></tr>
           ${isOpen ? `<tr class="cat-detail"><td colspan="3">
             <div style="display:flex;justify-content:flex-end;padding:16px 0"><button class="btn btn-primary" data-add-item="${c.id}">เพิ่มรายการสินค้า</button></div>
             <div class="inner">${items.length ? `<table class="tbl"><thead><tr><th>ชื่อสินค้า (ไทย)</th><th>ชื่อสินค้า (อังกฤษ)</th><th>จำนวนสินค้าย่อย</th><th>จัดการ</th></tr></thead><tbody>
-              ${items.map((it) => `<tr><td>${esc(it[0])}</td><td>${esc(it[1])}</td><td>${it[2] ? it[2] + ' รายการ' : 'ไม่มีสินค้าย่อย'}</td>
+              ${pageSlice(c.id, items).map((it) => `<tr><td>${esc(it[0])}</td><td>${esc(it[1])}</td><td>${it[2] ? it[2] + ' รายการ' : 'ไม่มีสินค้าย่อย'}</td>
                 <td class="actions-cell"><a data-edit-item="${c.id}|${esc(it[0])}">แก้ไข</a><a class="link-danger" data-del-item="${c.id}|${esc(it[0])}">ลบ</a></td></tr>`).join('')}
-              </tbody></table>` : '<p class="placeholder" style="padding:24px">ยังไม่มีรายการสินค้าในหมวดหมู่นี้</p>'}</div>
+              </tbody></table>${itemPager(c.id, items.length)}` : `<p class="placeholder" style="padding:24px">${ql ? 'ไม่พบรายการที่ค้นหาในหมวดหมู่นี้' : 'ยังไม่มีรายการสินค้าในหมวดหมู่นี้'}</p>`}</div>
           </td></tr>` : ''}`;
       }).join('') || `<tr><td class="empty" colspan="3">ไม่พบหมวดหมู่หรือสินค้าที่ค้นหา</td></tr>`;
     }
 
-    $('#cat-q', root).addEventListener('input', (e) => { q = e.target.value; render(); });
+    $('#cat-q', root).addEventListener('input', (e) => { q = e.target.value; Object.values(pg).forEach((st) => (st.page = 1)); render(); });
+    root.addEventListener('change', (e) => {
+      const sz = e.target.closest('[data-isize]');
+      if (sz) { Object.assign(pageOf(+sz.dataset.isize), { size: +sz.value, page: 1 }); render(); }
+    });
     root.addEventListener('click', (e) => {
       const t = e.target;
+      const ip = t.closest('[data-ipage]');
+      if (ip) { if (!ip.disabled) { const [id, n] = ip.dataset.ipage.split('|').map(Number); pageOf(id).page = n; render(); } return; }
       const del = t.closest('[data-del-cat]');
       if (del) { const c = DB.categories.find((x) => x.id == del.dataset.delCat); return confirmDelete(c.name, () => { DB.categories.splice(DB.categories.indexOf(c), 1); render(); toast('ลบหมวดหมู่แล้ว'); }); }
       const di = t.closest('[data-del-item]');
       if (di) {
         const [cid, name] = di.dataset.delItem.split('|');
         const c = DB.categories.find((x) => x.id == cid);
-        return confirmDelete(name, () => { c.items = c.items.filter((it) => it[0] !== name); c.count = Math.max(0, c.count - 1); render(); toast('ลบรายการสินค้าแล้ว'); });
+        return confirmDelete(name, () => { c.items = c.items.filter((it) => it[0] !== name); render(); toast('ลบรายการสินค้าแล้ว'); });
       }
       const ai = t.closest('[data-add-item]');
       if (ai) {
         const c = DB.categories.find((x) => x.id == ai.dataset.addItem);
-        return UI.productModal(c, null, (it) => { c.items.unshift(it); c.count++; render(); });
+        return UI.productModal(c, null, (it) => { c.items.unshift(it); pageOf(c.id).page = 1; render(); });
       }
       const ei = t.closest('[data-edit-item]');
       if (ei) {

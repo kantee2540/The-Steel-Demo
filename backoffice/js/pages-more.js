@@ -390,7 +390,7 @@
       if (e.target.closest('[data-preview-btn]')) { if (!img) return toast('กรุณาอัปโหลดรูปประกอบก่อนดูตัวอย่าง', 'warn'); preview = !preview; drawPreview(); }
       if (e.target.closest('[data-save]')) {
         const data = { name: val('#c-name'), desc: val('#c-desc'), img: img.startsWith('assets/') ? img.slice(7) : img };
-        if (c) Object.assign(c, data); else DB.categories.unshift(Object.assign({ id: Date.now(), count: 0, items: [] }, data));
+        if (c) Object.assign(c, data); else DB.categories.unshift(Object.assign({ id: Date.now(), items: [] }, data));
         toast('บันทึกหมวดหมู่แล้ว'); location.hash = '#/products';
       }
     });

@@ -2,12 +2,14 @@
 window.DB = {
   user: { name: 'กัน รวีทรัพย์', initial: 'A', empId: 'EMP-0001', phone: '081-399-9999' },
 
+  // Product lines per category: [Thai name, English name, number of SKU variants].
+  // The category's product count is items.length (see the generator after DB).
   categories: [
-    { id: 1, name: 'เหล็กสำเร็จรูป', count: 42, items: [] },
-    { id: 2, name: 'เหล็กโครงสร้างรูปพรรณกลวง', count: 18, items: [] },
-    { id: 3, name: 'เหล็กเพื่องานโครงสร้าง', count: 27, items: [] },
+    { id: 1, name: 'เหล็กสำเร็จรูป', items: [] },
+    { id: 2, name: 'เหล็กโครงสร้างรูปพรรณกลวง', items: [] },
+    { id: 3, name: 'เหล็กเพื่องานโครงสร้าง', items: [] },
     {
-      id: 4, name: 'เหล็กเพื่องานฐานราก', count: 15, items: [
+      id: 4, name: 'เหล็กเพื่องานฐานราก', items: [
         ['เหล็กตัวซี มอก.', 'TIS C-Channel Steel', 12], ['เหล็กตัวซี สังกะสี', 'Galvanized C-Channel Steel', 8],
         ['เหล็กกล่องสี่เหลี่ยม มอก.', 'TIS Square Steel Tube', 15], ['เหล็กกล่องสี่เหลี่ยม JIS', 'JIS Square Steel Tube', 10],
         ['เหล็กกล่องสี่เหลี่ยม สังกะสี', 'Galvanized Square Steel Tube', 6], ['เหล็กกล่องแบน มอก.', 'TIS Rectangular Steel Tube', 9],
@@ -257,6 +259,35 @@ Object.assign(window.DB, {
 
   stockAlertThreshold: 50,
 });
+
+// Fill each category with product lines (sizes × types) up to the counts shown in Figma: 42 / 18 / 27 / 15.
+(function () {
+  const v = (i) => [4, 6, 8, 3, 5, 7, 10, 2, 9, 6][i % 10]; // deterministic variant count per line
+  const lines = (types, sizes) => types.flatMap(([th, en]) => sizes.map((sz) => [`${th} ${sz}`, `${en} ${sz}`])).map((x, i) => [...x, v(i)]);
+  const fill = (id, list, n) => { const c = DB.categories.find((x) => x.id === id); c.items.push(...list.slice(0, n - c.items.length)); };
+  fill(1, [
+    ...lines([['เหล็กปลอกสำเร็จรูป', 'Ready-made Stirrup']], ['15x15 ซม.', '20x20 ซม.', '15x30 ซม.', '20x40 ซม.', 'กลม Ø15 ซม.', 'กลม Ø20 ซม.']),
+    ...lines([['ฟุตติ้งสำเร็จรูป', 'Ready-made Footing']], ['60x60 ซม.', '80x80 ซม.', '100x100 ซม.', '120x120 ซม.', '150x150 ซม.', '180x180 ซม.']),
+    ...lines([['เสาเอ็นสำเร็จรูป', 'Ready-made Tie Column']], ['10x10 ซม. ยาว 3 ม.', '10x10 ซม. ยาว 4 ม.', '15x15 ซม. ยาว 3 ม.', '15x15 ซม. ยาว 4 ม.']),
+    ...lines([['คานเอ็นสำเร็จรูป', 'Ready-made Tie Beam']], ['10x10 ซม. ยาว 4 ม.', '10x15 ซม. ยาว 4 ม.', '15x20 ซม. ยาว 6 ม.', '15x30 ซม. ยาว 6 ม.']),
+    ...lines([['ตะแกรงเหล็กไวร์เมช', 'Wire Mesh']], ['4 มม. 20x20 ซม.', '4 มม. 25x25 ซม.', '5 มม. 20x20 ซม.', '6 มม. 20x20 ซม.', '6 มม. 25x25 ซม.', '8 มม. 20x20 ซม.']),
+    ...lines([['ลวดผูกเหล็ก', 'Tie Wire']], ['เบอร์ 18 (1 กก.)', 'เบอร์ 18 (20 กก.)', 'เบอร์ 20 (1 กก.)', 'เบอร์ 20 (20 กก.)']),
+    ...lines([['เหล็กดัดสำเร็จรูป', 'Ready-made Wrought Iron']], ['ลายตรง 1x1 ม.', 'ลายโค้ง 1x1 ม.', 'ลายตรง 1x2 ม.', 'ลายโค้ง 1x2 ม.']),
+    ...lines([['ประตูรั้วเหล็กสำเร็จรูป', 'Ready-made Steel Gate']], ['บานเดี่ยว 1 ม.', 'บานคู่ 3 ม.', 'บานคู่ 4 ม.', 'บานเลื่อน 4 ม.']),
+    ...lines([['ขาตั้งเหล็กสำเร็จรูป', 'Ready-made Steel Stand']], ['สูง 50 ซม.', 'สูง 75 ซม.', 'สูง 100 ซม.', 'สูง 120 ซม.']),
+  ], 42);
+  fill(2, lines([['ท่อเหล็กสี่เหลี่ยมจัตุรัส มอก.', 'TIS Square Hollow Section'], ['ท่อเหล็กกล่องแบน มอก.', 'TIS Rectangular Hollow Section'], ['ท่อเหล็กกลมดำ มอก.', 'TIS Circular Hollow Section']],
+    ['ขนาดเล็ก (≤ 25 มม.)', 'ขนาด 32 มม.', 'ขนาด 38 มม.', 'ขนาด 50 มม.', 'ขนาด 75 มม.', 'ขนาด 100 มม.']), 18);
+  fill(3, [
+    ...lines([['เหล็ก H-Beam', 'H-Beam']], ['100x100 มม.', '150x150 มม.', '200x200 มม.', '250x250 มม.', '300x300 มม.']),
+    ...lines([['เหล็ก I-Beam', 'I-Beam']], ['100x75 มม.', '150x75 มม.', '200x100 มม.', '250x125 มม.']),
+    ...lines([['เหล็กรางน้ำ', 'U-Channel']], ['75x40 มม.', '100x50 มม.', '125x65 มม.', '150x75 มม.', '200x80 มม.']),
+    ...lines([['เหล็กฉาก', 'Equal Angle']], ['25x25 มม.', '40x40 มม.', '50x50 มม.', '65x65 มม.', '75x75 มม.', '100x100 มม.']),
+    ...lines([['เหล็กตัวซีมีขอบ', 'Lip Channel']], ['75x45 มม.', '100x50 มม.', '125x50 มม.', '150x50 มม.']),
+    ...lines([['เหล็กแบน', 'Flat Bar']], ['25x3 มม.', '38x5 มม.', '50x6 มม.']),
+  ], 27);
+  fill(4, lines([['เหล็กเส้นกลม SR24', 'Round Bar SR24'], ['เหล็กข้ออ้อย SD40', 'Deformed Bar SD40']], ['9 มม.', '12 มม.', '16 มม.', '20 มม.']), 15);
+})();
 
 // Category descriptions/images and extra branch fields used by the full-feature forms.
 [['ready', 'เหล็กปลอก ฟุตติ้ง เสาเอ็น พร้อมใช้', 'cat-5.png'], ['hollow', 'สำหรับท่อเหล็กสำหรับรั้ว ประตู งานโครง', 'cat-3.png'],
