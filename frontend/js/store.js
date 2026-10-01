@@ -190,6 +190,8 @@
       ],
       checkout: { recipient: 0, address: 0, taxWanted: true, tax: 0, addonsWanted: true, porter: true, porterQty: 2, equip: true, equip1: true, equip2: false, method: 'card' },
       orders: [demoOrder()],
+      quotes: [{ id: 'QT-20260905-0007', date: '5 กันยายน 2569', email: 'mrSteel@hotmail.com', status: 'ส่งใบเสนอราคาแล้ว', total: 5590,
+        items: [{ name: 'ท่อเหล็กรูปสี่เหลี่ยมจัตุรัส มอก. 34x34', qty: 2, price: 2000 }, { name: 'เหล็กฉาก 3 มม. มอก. ขนาด 1 1/2 x 1 1/2 นิ้ว', qty: 1, price: 900 }] }],
     };
   }
 
@@ -214,6 +216,7 @@
   const KEY = 'easy-steel-shop-v1';
   let state;
   try { state = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch { state = seed(); }
+  if (!state.quotes) state.quotes = seed().quotes; // saved before quotes existed
   const listeners = new Set();
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
@@ -315,6 +318,19 @@
       state.cart = state.cart.filter((l) => !t.lines.includes(l));
       save();
       return order;
+    },
+    // Record a quote request for the currently selected cart lines and add-ons.
+    requestQuote(email) {
+      const t = totals();
+      const now = new Date();
+      const p = (n) => String(n).padStart(2, '0');
+      const q = {
+        id: `QT-${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}-${String(state.quotes.length + 1).padStart(4, '0')}`,
+        date: thaiDate(now), email, status: 'รอใบเสนอราคา', total: t.total,
+        items: t.lines.map((l) => { const i = lineInfo(l); return { name: i.p.name, qty: l.qty, price: i.p.price }; }),
+      };
+      state.quotes.unshift(q); save();
+      return q;
     },
     reorder(id) {
       const o = state.orders.find((x) => x.id === id);

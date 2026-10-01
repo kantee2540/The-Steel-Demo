@@ -416,7 +416,8 @@
       refresh();
     });
     root.addEventListener('click', (e) => {
-      if (e.target.closest('[data-quote]')) modal({ title: 'ขอใบเสนอราคา', sub: 'ระบบจะส่งใบเสนอราคาไปยังอีเมลของคุณ', body: `<div class="field"><label>อีเมล</label><input class="input" value="${esc(S().user.email)}"></div>`, ok: 'ส่งคำขอ', onOk: () => toast('ส่งคำขอใบเสนอราคาแล้ว') });
+      if (e.target.closest('[data-quote]')) modal({ title: 'ขอใบเสนอราคา', sub: 'ระบบจะส่งใบเสนอราคาไปยังอีเมลของคุณ', body: `<div class="field"><label>อีเมล</label><input class="input" data-qe value="${esc(S().user.email)}"></div>`, ok: 'ส่งคำขอ',
+        onOk: (m) => { const q = actions.requestQuote($('[data-qe]', m).value.trim()); toast(`ส่งคำขอใบเสนอราคา ${q.id} แล้ว`, 'ok', ' <a href="#/account/quotes">ดูประวัติ</a>'); } });
     });
   };
 
@@ -598,7 +599,7 @@
       recipients: ['ข้อมูลผู้รับสินค้า', s.recipients.map((r) => [r.name, `${r.phone} • ${r.email}`]), 'recipient'],
       addresses: ['ข้อมูลที่อยู่จัดส่ง', s.addresses.map((a) => [a.title, a.full]), 'address'],
       taxes: ['ข้อมูลสำหรับขอรับใบกำกับภาษี', s.taxes.map((t) => [t.name, `เลขประจำตัวผู้เสียภาษี : ${t.taxId}`]), 'tax'],
-      quotes: ['ประวัติการขอใบเสนอราคา', [], null],
+      quotes: ['ประวัติการขอใบเสนอราคา', s.quotes.map((q) => [`${q.id} · ${q.status}`, `${q.date} · ${q.items.length} รายการ · ${money(q.total)} บาท · ส่งไปที่ ${q.email}`]), null],
       contact: ['ติดต่อเรา', [['บริษัท เดอะ สตีล จำกัด (มหาชน)', 'โทร 02-123-4567 • อีเมล contact@thesteel.co.th • จันทร์–เสาร์ 08:00–17:00 น.']], null],
     };
     const [title, rows, kind] = map[section] || map.recipients;

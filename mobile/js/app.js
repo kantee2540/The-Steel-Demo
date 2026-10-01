@@ -16,8 +16,10 @@
     ['/orders', 'orders', 'รายการคำสั่งซื้อ', 'orders'],
     ['/account', 'account', 'บัญชีของฉัน', 'account'],
     ['/favorites', 'favorites', 'รายการโปรดของฉัน', 'account', '#/account'],
+    ['/account/:section', 'accountData', 'บัญชีของฉัน', 'account', '#/account'],
+    ['/compare', 'compare', 'เปรียบเทียบสินค้า', 'home', '#/products'],
   ];
-  const AUTH = ['address', 'addons', 'payment', 'status', 'orders', 'favorites'];
+  const AUTH = ['address', 'addons', 'payment', 'status', 'orders', 'favorites', 'accountData'];
 
   function parse() {
     const [path, qs] = (location.hash.replace(/^#/, '') || '/').split('?');
@@ -47,6 +49,20 @@
   const framed = () => matchMedia('(min-width: 640px)').matches;
   const scroller = () => (framed() ? $('.app') : document.scrollingElement);
 
+  const ACCOUNT_TITLES = { recipients: 'ข้อมูลผู้รับสินค้า', addresses: 'ข้อมูลที่อยู่จัดส่ง', taxes: 'ข้อมูลใบกำกับภาษี', quotes: 'ประวัติการขอใบเสนอราคา' };
+
+  // Floating compare bar above the tab bar while products are picked for comparison.
+  function compareBar() {
+    document.querySelectorAll('.compare-bar').forEach((b) => b.remove());
+    const ids = SHOP.state.compare;
+    if (!ids.length || current.key === 'compare' || current.key.match(/^(cart|address|addons|payment|status)$/)) return;
+    const bar = document.createElement('div');
+    bar.className = 'compare-bar';
+    bar.innerHTML = `<div class="thumbs">${ids.map((id) => `<img src="${A(SHOP.product(id).img)}" alt="">`).join('')}<span>${ids.length}/4</span></div>
+      <button class="link-btn" data-clear-compare>ล้าง</button><a class="btn btn-primary" href="#/compare">เปรียบเทียบ (${ids.length})</a>`;
+    (document.querySelector('.screen') || document.body).appendChild(bar);
+  }
+
   let current;
   function render(keepScroll) {
     const y = scroller().scrollTop;
@@ -62,6 +78,8 @@
     $('#page').replaceWith(page);
     page.className = 'content';
     PAGES[current.key](page, current.params, current.query);
+    if (current.title && current.key === 'accountData') $('.topbar h1').textContent = ACCOUNT_TITLES[current.params.section] || current.title;
+    compareBar();
     scroller().scrollTop = keepScroll ? y : 0;
   }
 
@@ -74,6 +92,14 @@
       else location.hash = current.parent || '#/';
       return;
     }
+    const cmp = e.target.closest('[data-compare]');
+    if (cmp) {
+      e.preventDefault(); e.stopPropagation();
+      const r = SHOP.actions.toggleCompare(cmp.dataset.compare);
+      toast(r === 'full' ? 'เปรียบเทียบได้สูงสุด 4 รายการ' : r === 'added' ? 'เพิ่มในรายการเปรียบเทียบแล้ว' : 'นำออกจากรายการเปรียบเทียบแล้ว', r === 'full' ? 'warn' : 'ok');
+      return render(true);
+    }
+    if (e.target.closest('[data-clear-compare]')) { SHOP.actions.clearCompare(); return render(true); }
     const fav = e.target.closest('[data-fav]');
     if (fav) {
       e.preventDefault(); e.stopPropagation();

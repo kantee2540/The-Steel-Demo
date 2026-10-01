@@ -27,9 +27,9 @@
   const layer = () => document.querySelector('.screen') || document.body;
 
   function pcard(p) {
-    const fav = SHOP.state.fav.includes(p.id);
+    const fav = SHOP.state.fav.includes(p.id), cmp = SHOP.state.compare.includes(p.id);
     return `<a class="pcard" href="#/product/${p.id}">
-      <div class="im"><img src="${A(p.img)}" alt="" loading="lazy"><button class="fav${fav ? ' on' : ''}" data-fav="${p.id}" aria-label="รายการโปรด">${icon('heart', 15, 2)}</button></div>
+      <div class="im"><img src="${A(p.img)}" alt="" loading="lazy"><button class="cmp${cmp ? ' on' : ''}" data-compare="${p.id}">${cmp ? '✓ เปรียบเทียบ' : 'เปรียบเทียบ'}</button><button class="fav${fav ? ' on' : ''}" data-fav="${p.id}" aria-label="รายการโปรด">${icon('heart', 15, 2)}</button></div>
       <div class="i"><div class="n">${esc(p.name)}</div><div class="sku">SKU : ${p.sku}</div>
         <div class="rec">แนะนำ :<br>${p.tags.map(esc).join(', ')}</div>
         <div class="pl"><small>ราคา (บาท)</small><b>${money(p.price)}</b>${p.stock <= 0 ? '<div class="oos">สินค้าหมด</div>' : ''}</div></div></a>`;

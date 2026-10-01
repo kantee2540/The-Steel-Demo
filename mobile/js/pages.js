@@ -27,17 +27,20 @@
   };
 
   // ---------- รายการสินค้า ----------
-  const L = { key: '', q: '', sort: 'rec', types: new Set(), inStock: false, shown: 6 };
+  const L = { key: '', q: '', sort: 'rec', usage: new Set(), types: new Set(), stds: new Set(), size: 'ทั้งหมด', inStock: false, shown: 6 };
+  const resetFilters = () => Object.assign(L, { usage: new Set(), types: new Set(), stds: new Set(), size: 'ทั้งหมด', inStock: false, shown: 6 });
   PAGES.products = function (root, _p, query) {
     const key = `${query.cat || ''}|${query.q || ''}`;
-    if (L.key !== key) Object.assign(L, { key, q: query.q || '', types: new Set(), shown: 6 });
+    if (L.key !== key) { resetFilters(); Object.assign(L, { key, q: query.q || '' }); }
     const cat = category(query.cat);
     const base = PRODUCTS.filter((p) => !cat || p.cat === cat.id);
     const q = L.q.trim().toLowerCase();
-    let r = base.filter((p) => (!q || (p.name + p.sku).toLowerCase().includes(q)) && (!L.types.size || L.types.has(p.type)) && (!L.inStock || p.stock > 0));
+    let r = base.filter((p) => (!q || (p.name + p.sku).toLowerCase().includes(q)) &&
+      (!L.usage.size || p.tags.some((t) => L.usage.has(t))) && (!L.types.size || L.types.has(p.type)) &&
+      (!L.stds.size || L.stds.has(p.standard)) && (L.size === 'ทั้งหมด' || p.size === L.size) && (!L.inStock || p.stock > 0));
     if (L.sort === 'asc') r = r.slice().sort((a, b) => a.price - b.price);
     if (L.sort === 'desc') r = r.slice().sort((a, b) => b.price - a.price);
-    const nf = L.types.size + (L.inStock ? 1 : 0);
+    const nf = L.usage.size + L.types.size + L.stds.size + (L.size !== 'ทั้งหมด' ? 1 : 0) + (L.inStock ? 1 : 0);
     root.innerHTML = `
       <div class="field"><label>ค้นหา</label><label class="search-in">${icon('search', 18, 2)}<input data-q placeholder="ค้นหาสินค้า" value="${esc(L.q)}"></label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
@@ -57,13 +60,22 @@
     root.addEventListener('click', (e) => {
       if (e.target.closest('[data-more]')) { L.shown += 6; refresh(); }
       if (e.target.closest('[data-filter]')) {
-        const types = [...new Set(base.map((p) => p.type))];
+        const uniq = (f) => [...new Set(base.flatMap(f))];
+        const group = (title, name, items, set) => `<b>${title}</b><div style="display:grid;gap:10px;margin:10px 0 18px">${items.map((v) => `<label class="check"><input type="checkbox" data-g="${name}" value="${esc(v)}" ${set.has(v) ? 'checked' : ''}> ${esc(v)}</label>`).join('')}</div>`;
+        const sizes = uniq((p) => (p.size ? [p.size] : []));
         sheet({
           title: 'ตัวกรอง', ok: 'แสดงผล', cancel: 'ล้างตัวกรอง',
-          body: `<b>ประเภทเหล็ก</b><div style="display:grid;gap:10px;margin:10px 0 16px">${types.map((t) => `<label class="check"><input type="checkbox" value="${esc(t)}" ${L.types.has(t) ? 'checked' : ''}> ${esc(t)}</label>`).join('')}</div>
-            <label class="check"><input type="checkbox" data-stock ${L.inStock ? 'checked' : ''}> แสดงเฉพาะรายการที่มีสินค้า</label>`,
-          onOk: (m) => { L.types = new Set($$('input[value]', m).filter((i) => i.checked).map((i) => i.value)); L.inStock = $('[data-stock]', m).checked; L.shown = 6; refresh(); },
-        }).querySelector('[data-x]').addEventListener('click', () => { L.types = new Set(); L.inStock = false; refresh(); });
+          body: group('การใช้งาน', 'usage', uniq((p) => p.tags), L.usage) + group('ประเภทเหล็ก', 'types', uniq((p) => [p.type]), L.types) +
+            (sizes.length ? `<b>ขนาดหน้าตัด (มม.)</b><div class="muted" style="font-size:12px">* ขึ้นอยู่กับประเภทเหล็ก</div><select class="select" data-size style="margin:8px 0 18px">${['ทั้งหมด', ...sizes].map((v) => `<option ${v === L.size ? 'selected' : ''}>${v}</option>`).join('')}</select>` : '') +
+            `<b>ความยาว (ม.)</b><select class="select" style="margin:8px 0 18px"><option>6</option></select>` +
+            group('มาตรฐาน', 'stds', uniq((p) => [p.standard]), L.stds) +
+            `<label class="check"><input type="checkbox" data-stock ${L.inStock ? 'checked' : ''}> แสดงเฉพาะรายการที่มีสินค้า</label>`,
+          onOk: (m) => {
+            for (const g of ['usage', 'types', 'stds']) L[g] = new Set($$(`[data-g="${g}"]`, m).filter((i) => i.checked).map((i) => i.value));
+            const sz = $('[data-size]', m); L.size = sz ? sz.value : 'ทั้งหมด';
+            L.inStock = $('[data-stock]', m).checked; L.shown = 6; refresh();
+          },
+        }).querySelector('[data-x]').addEventListener('click', () => { resetFilters(); refresh(); });
       }
     });
   };
@@ -95,6 +107,8 @@
       <div style="display:flex;gap:8px;margin-top:6px"><div class="qty ${p.stock ? '' : 'disabled'}"><button data-q="-1" aria-label="ลด">-</button><input value="${st.qty}" data-qty inputmode="numeric" aria-label="จำนวน"><button data-q="1" aria-label="เพิ่ม">+</button></div>
         <button class="btn btn-primary" style="width:66px;height:40px" data-add ${p.stock ? '' : 'disabled'} aria-label="เพิ่มเข้าตะกร้า">${icon('cart', 24, 2)}</button>
         <button class="btn" style="width:48px;height:40px;${S().fav.includes(p.id) ? 'background:var(--primary);color:#fff' : ''}" data-fav="${p.id}" aria-label="รายการโปรด">${icon('heart', 20, 2)}</button></div>
+      <button class="btn" style="margin-top:8px;height:40px;font-size:15px;${S().compare.includes(p.id) ? 'background:var(--primary);color:#fff' : ''}" data-compare="${p.id}">${S().compare.includes(p.id) ? '✓ อยู่ในรายการเปรียบเทียบ' : 'เพิ่มในรายการเปรียบเทียบ'}</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="btn" style="height:40px;font-size:14px" data-dl="ใบอนุญาต">${icon('download', 16)} ดาวน์โหลดใบอนุญาต</button><button class="btn" style="height:40px;font-size:14px" data-dl="เอกสารสินค้า">${icon('download', 16)} ดาวน์โหลดเอกสารสินค้า</button></div>
       <div class="tabs"><button class="${st.tab ? '' : 'on'}" data-tab="0">รายละเอียด</button><button class="${st.tab ? 'on' : ''}" data-tab="1">ข้อมูลเทคนิค</button></div>
       ${st.tab === 0 ? `<div class="spec">${[['หมวดหมู่', cat.name], ['ประเภทเหล็ก', p.type], ['กระบวนการผลิต', p.process], ['ผิวเหล็ก', p.finish], ['หน่วยขาย', p.unit]].map(([k, v]) => `<div class="kv"><span>${k}</span><span>${esc(v)}</span></div>`).join('')}</div>
         <p class="muted" style="font-size:13px;line-height:1.5;margin-top:12px">${esc(p.desc)}</p>`
@@ -110,6 +124,7 @@
       const t = e.target.closest('[data-t]'); if (t) { st.t = +t.dataset.t; refresh(); }
       const tb = e.target.closest('[data-tab]'); if (tb) { st.tab = +tb.dataset.tab; refresh(); }
       const q = e.target.closest('[data-q]'); if (q) { st.qty = Math.max(1, Math.min(p.stock, st.qty + +q.dataset.q)); refresh(); }
+      const dl = e.target.closest('[data-dl]'); if (dl) toast(`ดาวน์โหลด${dl.dataset.dl} (ต้นแบบ — ยังไม่มีไฟล์จริง)`, 'warn');
       if (e.target.closest('[data-add]')) { actions.addToCart(p.id, st.t, st.qty); toast(`เพิ่ม ${st.qty} เส้นเข้าตะกร้าแล้ว`, 'ok', ' <a href="#/cart">ดูตะกร้า</a>'); st.qty = 1; refresh(); }
     });
     $('[data-qty]', root).addEventListener('change', (e) => { st.qty = Math.max(1, Math.min(p.stock, parseInt(e.target.value, 10) || 1)); refresh(); });
@@ -124,7 +139,7 @@
       ${s.cart.length ? `
       <div class="card" style="margin-bottom:12px;padding:20px 24px"><h2 style="font-size:24px;margin-bottom:12px">ส่วนลด</h2>
         <form data-coupon style="display:flex;gap:8px"><input class="input" name="code" style="border-color:var(--primary)" value="${esc(s.coupon || '')}" placeholder="กรอกโค้ดส่วนลด"><button class="btn btn-primary" style="width:60px">เพิ่ม</button></form>
-        ${c ? `<div class="blue-box" style="margin-top:12px"><b style="color:var(--primary);font-size:17px">${c.label}</b><div class="muted">ขั้นต่ำ ${money(c.min)} บาท</div><div class="muted" style="font-size:12px">ใช้ได้ถึง : ${c.until}</div>
+        ${c ? `<div class="blue-box" style="margin-top:12px"><b style="color:var(--primary);font-size:17px">${c.label}</b><div class="muted">ขั้นต่ำ ${money(c.min)} บาท</div>${t.couponNote ? `<div style="color:var(--danger);font-size:13px">${esc(t.couponNote)}</div>` : ''}<div class="muted" style="font-size:12px">ใช้ได้ถึง : ${c.until}</div>
           <div style="display:flex;gap:16px;margin-top:4px"><a style="color:var(--primary);text-decoration:underline" data-terms>เงื่อนไข</a><a style="color:var(--danger);text-decoration:underline" data-rmc>ลบโค้ด</a></div></div>` : '<p class="muted" style="font-size:13px;margin-top:8px">ลองใช้โค้ด SALE10</p>'}
       </div>
       ${s.cart.map((l, i) => { const x = SHOP.lineInfo(l); const on = l.sel && !x.out; return `<div class="citem ${on ? 'sel' : ''} ${x.out ? 'out' : ''}">
@@ -135,23 +150,28 @@
           <div class="row"><div><div class="s" style="color:var(--text)">สินค้าคงเหลือ : <b>${x.out ? '<span style="color:var(--danger)">สินค้าหมด</span>' : x.p.stock}</b></div>
             <div class="qty sm ${x.out ? 'disabled' : ''}" style="margin-top:4px"><button data-dq="${i}|-1">-</button><input value="${l.qty}" data-qi="${i}" aria-label="จำนวน"><button data-dq="${i}|1">+</button></div></div>
             <div class="tot"><span style="font-size:13px">${x.p.unit}</span><b>${money(x.total)} บาท</b></div></div></div></div>`; }).join('')}
-      <div class="cart-sheet">
-        <div class="kv" style="font-size:16px;padding-bottom:12px;border-bottom:1px solid var(--border-soft)"><b>โค้ดส่วนลด</b><span style="color:var(--primary)">${esc(s.coupon || '-')}</span></div>
-        <h4 style="font-size:18px;margin:12px 0 4px">สรุปคำสั่งซื้อ</h4>
-        <div class="kv"><span>น้ำหนักรวม</span><span>${num(t.weight, 2)} กก.</span></div><div class="kv"><span>จำนวนรายการ</span><span>${t.count} รายการ</span></div><hr class="hr">
-        <div class="kv"><span>ราคาสินค้าทั้งหมด (บาท)</span><span>${money(t.subtotal)}</span></div><div class="kv"><span>ส่วนลด (บาท)</span><span>-${money(t.discount)}</span></div>
-        <div class="kv"><b>ยอดรวมสุทธิ (บาท)</b><b>${money(t.subtotal - t.discount)}</b></div>
-        <p class="muted" style="font-size:12px">(ไม่รวมค่าจัดส่งและค่าบริการเสริม)</p>
-        <button class="btn btn-primary" style="margin-top:8px;height:44px" data-next ${t.count ? '' : 'disabled'}>ถัดไป</button>
-      </div>` : '<div class="empty">ตะกร้าของคุณว่างอยู่<a class="btn btn-primary" href="#/products">เลือกซื้อสินค้า</a></div>'}`;
+      ${t.count ? `<div class="cart-bar">
+        <button class="cart-bar-sum" data-summary aria-label="ดูสรุปคำสั่งซื้อ"><small>ยอดรวมสุทธิ · ${t.count} รายการ ${icon('chevDown', 14, 2.4).replace('<svg', '<svg style="transform:rotate(180deg);vertical-align:-2px"')}</small><b>${money(t.subtotal - t.discount)} บาท</b>${t.discount ? `<small class="pos">ส่วนลด -${money(t.discount)}</small>` : ''}</button>
+        <button class="btn btn-primary" style="width:auto;padding:0 28px;height:44px" data-next>ถัดไป</button>
+      </div>` : '<p class="muted" style="text-align:center;margin:20px 0 0;font-size:14px">เลือกสินค้าที่ต้องการสั่งซื้อ เพื่อดูสรุปคำสั่งซื้อ</p>'}
+` : '<div class="empty">ตะกร้าของคุณว่างอยู่<a class="btn btn-primary" href="#/products">เลือกซื้อสินค้า</a></div>'}`;
     root.addEventListener('click', (e) => {
       const d = e.target.closest('[data-dq]'); if (d) { const [i, n] = d.dataset.dq.split('|').map(Number); actions.setQty(i, s.cart[i].qty + n); return refresh(); }
       const rm = e.target.closest('[data-rm]'); if (rm) return sheet({ title: 'ลบสินค้าออกจากตะกร้า', body: esc(product(s.cart[+rm.dataset.rm].pid).name), ok: 'ลบ', danger: true, onOk: () => { actions.removeLine(+rm.dataset.rm); refresh(); } });
       if (e.target.closest('[data-all]')) { actions.selectAll(); refresh(); }
       if (e.target.closest('[data-clear]')) sheet({ title: 'ล้างตะกร้าทั้งหมด', body: 'ต้องการลบสินค้าทั้งหมดออกจากตะกร้าใช่หรือไม่?', ok: 'ล้างทั้งหมด', danger: true, onOk: () => { actions.clearCart(); refresh(); } });
       if (e.target.closest('[data-rmc]')) { actions.removeCoupon(); refresh(); }
-      if (e.target.closest('[data-terms]')) sheet({ title: 'เงื่อนไขโค้ด SALE10', body: '<ul style="padding-left:18px;line-height:1.8;margin:0"><li>ลด 10% สูงสุด 100 บาท</li><li>ขั้นต่ำ 1,000 บาท</li><li>ใช้ได้ถึง 30 ธันวาคม 2569</li></ul>', ok: 'ปิด', cancel: '' });
+      if (e.target.closest('[data-terms]')) sheet({ title: `เงื่อนไขโค้ด ${s.coupon}`, body: `<ul style="padding-left:18px;line-height:1.8;margin:0"><li>${esc(c.label)}</li><li>ขั้นต่ำ ${money(c.min)} บาท</li><li>ใช้ได้ถึง ${c.until}</li></ul>`, ok: 'ปิด', cancel: '' });
       if (e.target.closest('[data-next]')) requireLogin(() => (location.hash = '#/checkout/address'));
+      if (e.target.closest('[data-summary]')) sheet({
+        title: 'สรุปคำสั่งซื้อ', ok: 'ถัดไป', cancel: 'ปิด',
+        body: `<div class="kv"><span>โค้ดส่วนลด</span><b style="color:var(--primary)">${esc(s.coupon || '-')}</b></div><hr class="hr">
+          <div class="kv"><span>น้ำหนักรวม</span><span>${num(t.weight, 2)} กก.</span></div><div class="kv"><span>จำนวนรายการ</span><span>${t.count} รายการ</span></div><hr class="hr">
+          <div class="kv"><span>ราคาสินค้าทั้งหมด (บาท)</span><span>${money(t.subtotal)}</span></div><div class="kv"><span>ส่วนลด (บาท)</span><span>-${money(t.discount)}</span></div>
+          <div class="kv" style="font-size:16px"><b>ยอดรวมสุทธิ (บาท)</b><b>${money(t.subtotal - t.discount)}</b></div>
+          <p class="muted" style="font-size:12px">(ไม่รวมค่าจัดส่งและค่าบริการเสริม)</p>`,
+        onOk: () => requireLogin(() => (location.hash = '#/checkout/address')),
+      });
     });
     root.addEventListener('change', (e) => {
       if (e.target.dataset.sel !== undefined) { actions.toggleSel(+e.target.dataset.sel); refresh(); }
@@ -228,7 +248,8 @@
       if (t.matches('[data-pq]')) actions.setCheckout({ porterQty: Math.max(1, Math.min(10, parseInt(t.value, 10) || 1)) });
       refresh();
     });
-    root.addEventListener('click', (e) => { if (e.target.closest('[data-quote]')) sheet({ title: 'ขอใบเสนอราคา', sub: 'ระบบจะส่งใบเสนอราคาไปยังอีเมลของคุณ', body: `<input class="input" value="${esc(S().user.email)}">`, ok: 'ส่งคำขอ', onOk: () => toast('ส่งคำขอใบเสนอราคาแล้ว') }); });
+    root.addEventListener('click', (e) => { if (e.target.closest('[data-quote]')) sheet({ title: 'ขอใบเสนอราคา', sub: 'ระบบจะส่งใบเสนอราคาไปยังอีเมลของคุณ', body: `<input class="input" data-qe value="${esc(S().user.email)}">`, ok: 'ส่งคำขอ',
+      onOk: (m) => { const q = actions.requestQuote($('[data-qe]', m).value.trim()); toast(`ส่งคำขอ ${q.id} แล้ว`, 'ok', ' <a href="#/account/quotes">ดูประวัติ</a>'); } }); });
   };
 
   // ---------- ชำระเงิน ----------
@@ -344,7 +365,8 @@
       <div class="card" style="display:flex;align-items:center;gap:14px"><span class="ok-badge" style="width:52px;height:52px">${icon('user', 28, 2)}</span><div><b style="font-size:18px">${esc(s.user.name)}</b><div class="muted" style="font-size:13px">${s.user.email}<br>${s.user.phone}</div></div></div>
       <div class="card menu-list">
         <a href="#/orders">รายการคำสั่งซื้อ ${icon('chevRight', 20)}</a><a href="#/favorites">รายการโปรดของฉัน (${s.fav.length}) ${icon('chevRight', 20)}</a>
-        <button data-info="recipients">ข้อมูลผู้รับสินค้า (${s.recipients.length}) ${icon('chevRight', 20)}</button><button data-info="addresses">ข้อมูลที่อยู่จัดส่ง (${s.addresses.length}) ${icon('chevRight', 20)}</button><button data-info="taxes">ข้อมูลใบกำกับภาษี (${s.taxes.length}) ${icon('chevRight', 20)}</button>
+        <a href="#/account/quotes">ประวัติการขอใบเสนอราคา (${s.quotes.length}) ${icon('chevRight', 20)}</a>
+        <a href="#/account/recipients">ข้อมูลผู้รับสินค้า (${s.recipients.length}) ${icon('chevRight', 20)}</a><a href="#/account/addresses">ข้อมูลที่อยู่จัดส่ง (${s.addresses.length}) ${icon('chevRight', 20)}</a><a href="#/account/taxes">ข้อมูลใบกำกับภาษี (${s.taxes.length}) ${icon('chevRight', 20)}</a>
         <button data-contact>ติดต่อเรา ${icon('chevRight', 20)}</button>
       </div>
       <button class="btn btn-danger" style="margin-top:16px" data-logout>ออกจากระบบ</button>`
@@ -355,17 +377,56 @@
       if (e.target.closest('[data-logout]')) { actions.logout(); toast('ออกจากระบบแล้ว'); refresh(); }
       if (e.target.closest('[data-reset]')) sheet({ title: 'รีเซ็ตข้อมูลตัวอย่าง', body: 'ตะกร้า คำสั่งซื้อ และข้อมูลที่เพิ่มไว้จะกลับเป็นค่าเริ่มต้นของต้นแบบ', ok: 'รีเซ็ต', danger: true, onOk: () => { actions.reset(); toast('รีเซ็ตแล้ว'); refresh(); } });
       if (e.target.closest('[data-contact]')) sheet({ title: 'ติดต่อเรา', body: 'บริษัท เดอะ สตีล จำกัด (มหาชน)<br>โทร 02-123-4567<br>contact@thesteel.co.th<br>จันทร์–เสาร์ 08:00–17:00 น.', ok: 'ปิด', cancel: '' });
-      const inf = e.target.closest('[data-info]');
-      if (inf) {
-        const k = inf.dataset.info;
-        const rows = k === 'recipients' ? s.recipients.map((r) => [r.name, `${r.phone} • ${r.email}`]) : k === 'addresses' ? s.addresses.map((a) => [a.title, a.full]) : s.taxes.map((t) => [t.name, t.taxId]);
-        sheet({ title: inf.textContent.replace(/\(\d+\)/, '').trim(), body: rows.map(([a, b]) => `<div style="padding:10px 0;border-bottom:1px solid var(--border-soft)"><b>${esc(a)}</b><div class="muted" style="font-size:13px">${esc(b)}</div></div>`).join(''), ok: 'ปิด', cancel: '' });
-      }
     });
   };
 
   PAGES.favorites = function (root) {
     const favs = S().fav.map(product).filter(Boolean);
-    root.innerHTML = favs.length ? `<div class="pgrid">${favs.map(pcard).join('')}</div>` : '<div class="empty">ยังไม่มีสินค้าในรายการโปรด<a class="btn btn-primary" href="#/products">เลือกดูสินค้า</a></div>';
+    root.innerHTML = `<div class="page-head"><span class="muted">${favs.length} รายการ</span><a class="btn btn-sm btn-primary" href="#/products">${icon('heart', 14, 2)} เพิ่มรายการโปรด</a></div>
+      ${favs.length ? `<div class="pgrid">${favs.map(pcard).join('')}</div>` : '<div class="empty">ยังไม่มีสินค้าในรายการโปรด<br>กดรูปหัวใจบนการ์ดสินค้าเพื่อบันทึก<a class="btn btn-primary" href="#/products">เลือกดูสินค้า</a></div>'}`;
+  };
+
+  // ---------- ข้อมูลบัญชี: ผู้รับ / ที่อยู่ / ใบกำกับภาษี / ใบเสนอราคา ----------
+  const DATA = {
+    recipients: { list: () => S().recipients, row: (r) => [r.name, `${r.phone} · ${r.email}`], add: 'เพิ่มข้อมูลผู้รับ', fields: [['name', 'ชื่อ-นามสกุล'], ['phone', 'เบอร์โทรศัพท์'], ['email', 'อีเมล']], save: (v) => actions.addRecipient(v) },
+    addresses: { list: () => S().addresses, row: (a) => [a.title, a.full], add: 'เพิ่มที่อยู่จัดส่ง', fields: [['title', 'ชื่อที่อยู่ เช่น โกดังบางนา'], ['full', 'ที่อยู่เต็ม']], save: (v) => actions.addAddress(v) },
+    taxes: { list: () => S().taxes, row: (t) => [t.name, `เลขประจำตัวผู้เสียภาษี : ${t.taxId}`], add: 'เพิ่มข้อมูลใบกำกับภาษี', fields: [['name', 'ชื่อบริษัท / ชื่อบุคคล'], ['taxId', 'เลขประจำตัวผู้เสียภาษี']], save: (v) => actions.addTax(v) },
+  };
+  PAGES.accountData = function (root, { section }) {
+    if (section === 'quotes') {
+      const qs = S().quotes;
+      root.innerHTML = `<div class="page-head"><span class="muted">${qs.length} รายการ</span><a class="btn btn-sm btn-primary" href="#/cart">ขอใบเสนอราคาใหม่</a></div>
+        ${qs.length ? qs.map((q) => `<div class="card"><div class="kv"><b>${q.id}</b><span class="badge ${q.status === 'ส่งใบเสนอราคาแล้ว' ? 'done' : 'wait'}">${q.status}</span></div>
+          <div class="muted" style="font-size:13px">${q.date} · ส่งไปที่ ${esc(q.email)}</div><hr class="hr">
+          ${q.items.map((i) => `<div class="kv"><span>${esc(i.name)} ×${i.qty}</span><span>${money(i.price * i.qty)}</span></div>`).join('')}
+          <hr class="hr"><div class="kv"><b>ยอดรวมโดยประมาณ (บาท)</b><b>${money(q.total)}</b></div></div>`).join('')
+        : '<div class="empty">ยังไม่มีประวัติการขอใบเสนอราคา<br>ขอใบเสนอราคาได้ในขั้นตอน “บริการเสริม” ระหว่างสั่งซื้อ</div>'}
+        <p class="muted" style="font-size:12px;margin-top:12px">ใบเสนอราคาเป็นการประเมินราคา ยังไม่ใช่คำสั่งซื้อ</p>`;
+      return;
+    }
+    const d = DATA[section];
+    if (!d) { root.innerHTML = '<div class="empty">ไม่พบหน้านี้<a class="btn btn-primary" href="#/account">กลับไปหน้าบัญชี</a></div>'; return; }
+    root.innerHTML = `<div class="page-head"><span class="muted">${d.list().length} รายการ</span><button class="btn btn-sm btn-primary" data-add>+ เพิ่มข้อมูล</button></div>
+      <div class="card">${d.list().length ? d.list().map((x, i) => { const [a, b] = d.row(x); return `<div class="data-row"><b>${esc(a)}${i === 0 ? ' <span class="badge done">ค่าเริ่มต้น</span>' : ''}</b><div class="muted" style="font-size:13px">${esc(b)}</div></div>`; }).join('') : '<div class="empty" style="padding:24px">ยังไม่มีข้อมูล</div>'}</div>`;
+    $('[data-add]', root).addEventListener('click', () => formSheet(d.add, d.fields, (v) => { d.save(v); toast('เพิ่มข้อมูลแล้ว'); refresh(); }));
+  };
+
+  // ---------- เปรียบเทียบสินค้า ----------
+  PAGES.compare = function (root) {
+    const items = S().compare.map(product).filter(Boolean);
+    if (!items.length) { root.innerHTML = '<div class="empty">ยังไม่มีสินค้าในรายการเปรียบเทียบ<br>กดปุ่ม “เปรียบเทียบ” บนการ์ดสินค้า (สูงสุด 4 รายการ)<a class="btn btn-primary" href="#/products">เลือกสินค้า</a></div>'; return; }
+    const min = Math.min(...items.map((p) => p.price));
+    const rows = [
+      ['ราคา (บาท)', (p) => `<b style="color:var(--primary)">${money(p.price)}</b>${items.length > 1 && p.price === min ? '<div class="best">ถูกที่สุด</div>' : ''}`],
+      ['รหัสสินค้า', (p) => p.sku], ['เกรด', (p) => p.grade], ['ความหนา', (p) => p.thicknesses.map((t) => `${t} มม.`).join(', ')],
+      ['มาตรฐาน', (p) => esc(p.standard)], ['การเคลือบผิว', (p) => p.coating], ['หน่วยขาย', (p) => p.unit],
+      ['คงเหลือ', (p) => (p.stock ? `${num(p.stock)} เส้น` : '<b style="color:var(--danger)">สินค้าหมด</b>')], ['การใช้งาน', (p) => esc(p.use)],
+    ];
+    root.innerHTML = `<div class="page-head"><span class="muted">${items.length}/4 รายการ</span><button class="btn btn-sm btn-danger" data-clear-compare>ล้างทั้งหมด</button></div>
+      <div class="cmp-scroll"><table class="cmp-table"><thead><tr><th></th>${items.map((p) => `<th><a href="#/product/${p.id}"><img src="${A(p.img)}" alt=""><span>${esc(p.name)}</span></a>
+        <button class="cmp-rm" data-compare="${p.id}" aria-label="นำออก">${icon('trash', 14)} นำออก</button></th>`).join('')}</tr></thead>
+        <tbody>${rows.map(([l, f]) => `<tr><td>${l}</td>${items.map((p) => `<td>${f(p)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <p class="muted" style="font-size:12px;margin-top:8px">← เลื่อนตารางไปทางซ้าย-ขวาเพื่อดูสินค้าทั้งหมด</p>
+      ${items.length < 4 ? '<a class="btn" style="margin-top:12px" href="#/products">+ เพิ่มสินค้าเปรียบเทียบ</a>' : ''}`;
   };
 })();
