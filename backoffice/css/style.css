@@ -22,6 +22,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; padding: 0; }
 body {
   font-family: var(--font);
@@ -221,6 +222,10 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .stat .s-label { font-size: 14px; color: var(--text-muted); }
 .stat .s-value { font-size: 28px; font-weight: 700; margin: 2px 0 4px; }
 .delta { display: inline-block; font-size: 12px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 1px 8px; border-radius: 999px; }
+.delta.down { color: #dc2626; background: #fee2e2; }
+.delta.flat { color: var(--text-muted); background: #f1f1f4; }
+.dash-filters { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; padding: 16px; margin: 4px 0 8px; background: #f8f9fb; border-radius: var(--radius-sm); }
+.dash-filters .field { width: 260px; max-width: 100%; }
 .legend { display: flex; gap: 16px; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
 .chart-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 16px 8px; position: relative; margin-bottom: 28px; }
