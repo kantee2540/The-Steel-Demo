@@ -5,7 +5,7 @@
   window.PAGES = window.PAGES || {};
 
   const ROUTES = [
-    ['/', 'home'], ['/products', 'products'], ['/product/:id', 'detail'], ['/compare', 'compare'], ['/articles', 'articles'], ['/articles/:id', 'article'],
+    ['/', 'home'], ['/products', 'products'], ['/product/:id', 'detail'], ['/compare', 'compare'], ['/articles', 'articles'], ['/articles/:id', 'article'], ['/promotions', 'promotions'], ['/promotions/:id', 'promotion'],
     ['/cart', 'cart'], ['/checkout/address', 'address'], ['/checkout/addons', 'addons'], ['/checkout/payment', 'payment'],
     ['/checkout/status/:id', 'status'], ['/account/orders', 'orders'], ['/account/favorites', 'favorites'], ['/account/:section', 'accountInfo'],
   ];

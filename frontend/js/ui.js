@@ -50,7 +50,7 @@
   }
 
   function postCard(x, withTag) {
-    return `<a class="post-card${withTag ? '' : ' no-tag'}" href="${withTag ? '#/products' : `#/articles/${x.id}`}"><img src="${A(x.img)}" alt="" loading="lazy">
+    return `<a class="post-card${withTag ? '' : ' no-tag'}" href="${withTag ? `#/promotions/${x.id}` : `#/articles/${x.id}`}"><img src="${A(x.img)}" alt="" loading="lazy">
       ${withTag ? `<span class="tag">สิ้นสุด ${x.end}</span>` : ''}
       <div class="body"><b>${esc(x.title)}</b><span>${esc(x.sub)}</span></div></a>`;
   }
@@ -78,9 +78,10 @@
       <div class="kv"><span>ราคาสินค้าทั้งหมด (บาท)</span><span>${money(t.subtotal)}</span></div>
       <div class="kv"><span>ส่วนลด (บาท)</span><span>-${money(t.discount)}</span></div>
       ${opts.shipping === false ? '' : `<hr class="divider"><div class="grp">ราคาขนส่ง</div>
-      <div class="kv ${opts.shippingHighlight ? 'green-row' : ''}"><span>ค่าจัดส่ง (บาท)</span><span>${t.shipping ? money(t.shipping) : 'ฟรี'}</span></div>`}
+      <div class="kv ${opts.shippingHighlight ? 'green-row' : ''}"><span>ค่าจัดส่ง (บาท)</span><span>${t.shipping ? money(t.shipping) : t.baseShipping ? `<s class="muted">${money(t.baseShipping)}</s> ฟรี` : 'ฟรี'}</span></div>`}
       ${showAdd ? `<hr class="divider"><div class="grp">ราคาบริการเสริม</div>
       <div class="kv ${opts.addonsHighlight ? 'green-row' : ''}"><span>บริการเสริม (บาท)</span><span>${money(t.addons)}</span></div>
+      ${t.addonDiscount ? `<div class="kv pos"><span>ส่วนลดบริการเสริม (บาท)</span><span>-${money(t.addonDiscount)}</span></div>` : ''}
       <div class="kv"><span>ค่าธรรมเนียม 7% (บาท)</span><span>${money(t.fee)}</span></div>` : ''}
       <hr class="divider">
       <div class="net"><span>ยอดรวมสุทธิ (บาท)</span><span>${money(opts.shipping === false ? t.subtotal - t.discount : net)}</span></div>
@@ -141,5 +142,17 @@
     });
   }
 
-  window.UI = { icon, $, $$, A, crumbs, productCard, postCard, stepper, summary, itemsTable, linesFromCart, modal, formModal, toast, requireLogin };
+  // Copy text, falling back to a hidden textarea where the async clipboard API is unavailable (e.g. file://).
+  function copyText(text) {
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove();
+      return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+    };
+    return navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(text).catch(fallback) : fallback();
+  }
+
+  window.UI = { copyText, icon, $, $$, A, crumbs, productCard, postCard, stepper, summary, itemsTable, linesFromCart, modal, formModal, toast, requireLogin };
 })();

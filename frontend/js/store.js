@@ -38,11 +38,32 @@
 
   const FEATURED = ['c-channel', 'flat-bar', 'i-beam', 'angle'];
 
+  // Each promotion has a coupon code (see COUPONS) that customers copy and apply in the cart.
   const PROMOS = [
-    { title: 'ซื้อครบ 5,000 บาท ลด 5%', sub: 'สำหรับหมวดเหล็กโครงสร้างทุกประเภท', img: 'promo-1.jpg', end: '30 พ.ย. 2569' },
-    { title: 'ส่งฟรีไม่มีขั้นต่ำ', sub: 'สำหรับออเดอร์ภายในเขตกรุงเทพฯ และปริมณฑล', img: 'promo-2.jpg', end: '30 พ.ย. 2569' },
-    { title: 'ส่วนลดเพิ่ม 2% สำหรับสมาชิก', sub: 'สำหรับลูกค้าที่สมัครสมาชิกภายในเดือนนี้', img: 'promo-3.jpg', end: '30 พ.ย. 2569' },
-    { title: 'ส่วนลดบริการยกสินค้า 5%', sub: 'สำหรับลูกค้าที่สมัครสมาชิกภายในเดือนนี้', img: 'promo-4.jpg', end: '30 พ.ย. 2569' },
+    {
+      id: 'structural-5', code: 'STEEL5K', badge: 'ลด 5%', title: 'ซื้อครบ 5,000 บาท ลด 5%', sub: 'สำหรับหมวดเหล็กโครงสร้างทุกประเภท', img: 'promo-1.jpg', start: '1 ก.ย. 2569', end: '30 พ.ย. 2569',
+      desc: 'รับส่วนลดทันที 5% เมื่อซื้อสินค้าหมวดเหล็กเพื่องานโครงสร้างและเหล็กโครงสร้างรูปพรรณกลวงครบ 5,000 บาทขึ้นไป เหมาะสำหรับงานโครงหลังคา รั้ว และโครงสร้างอาคาร',
+      conditions: ['ยอดซื้อสินค้าในหมวดที่ร่วมรายการรวมกันตั้งแต่ 5,000 บาทขึ้นไป (ไม่รวมค่าจัดส่งและบริการเสริม)', 'ส่วนลดสูงสุด 2,000 บาทต่อคำสั่งซื้อ', 'คิดส่วนลดเฉพาะสินค้าในหมวดเหล็กเพื่องานโครงสร้างและเหล็กโครงสร้างรูปพรรณกลวง', 'ใช้ได้ 1 โค้ดต่อคำสั่งซื้อ ไม่สามารถใช้ร่วมกับโค้ดอื่น'],
+      products: ['tube-25', 'tube-32', 'c-channel', 'i-beam', 'angle', 'tube-40'],
+    },
+    {
+      id: 'free-shipping', code: 'FREESHIP', badge: 'ส่งฟรี', title: 'ส่งฟรีไม่มีขั้นต่ำ', sub: 'สำหรับออเดอร์ภายในเขตกรุงเทพฯ และปริมณฑล', img: 'promo-2.jpg', start: '1 ก.ย. 2569', end: '30 พ.ย. 2569',
+      desc: 'ไม่ต้องรอสั่งครบยอด จัดส่งฟรีทุกคำสั่งซื้อเมื่อที่อยู่จัดส่งอยู่ในกรุงเทพฯ นนทบุรี ปทุมธานี สมุทรปราการ สมุทรสาคร หรือนครปฐม',
+      conditions: ['ที่อยู่จัดส่งต้องอยู่ในเขตกรุงเทพฯ และปริมณฑล (6 จังหวัด)', 'ยกเว้นค่าจัดส่งปกติ ไม่รวมค่าบริการเสริม เช่น คนยกสินค้า', 'จัดส่งภายใน 3–5 วันทำการ', 'ใช้ได้ 1 โค้ดต่อคำสั่งซื้อ'],
+      products: ['rebar-12', 'deformed-16', 'wire-mesh', 'flat-bar'],
+    },
+    {
+      id: 'member-2', code: 'MEMBER2', badge: 'สมาชิก', title: 'ส่วนลดเพิ่ม 2% สำหรับสมาชิก', sub: 'สำหรับลูกค้าที่สมัครสมาชิกภายในเดือนนี้', img: 'promo-3.jpg', start: '1 ก.ย. 2569', end: '30 พ.ย. 2569',
+      desc: 'สมัครสมาชิกและเข้าสู่ระบบ รับส่วนลดเพิ่ม 2% จากยอดสินค้าทุกชิ้นในตะกร้า ไม่มีขั้นต่ำ',
+      conditions: ['ต้องเข้าสู่ระบบด้วยบัญชีสมาชิกก่อนใช้โค้ด', 'ลด 2% จากราคาสินค้า ไม่รวมค่าจัดส่งและบริการเสริม', 'ส่วนลดสูงสุด 1,000 บาทต่อคำสั่งซื้อ', 'ใช้ได้ 1 โค้ดต่อคำสั่งซื้อ'],
+      products: ['tube-25', 'rebar-12', 'angle', 'flat-bar'],
+    },
+    {
+      id: 'lifting-5', code: 'LIFT5', badge: 'บริการเสริม', title: 'ส่วนลดบริการยกสินค้า 5%', sub: 'สำหรับลูกค้าที่สมัครสมาชิกภายในเดือนนี้', img: 'promo-4.jpg', start: '1 ก.ย. 2569', end: '30 พ.ย. 2569',
+      desc: 'ลด 5% สำหรับบริการเสริมทุกรายการ เช่น คนยกสินค้าและอุปกรณ์ยกสินค้า เลือกบริการได้ในขั้นตอน “บริการเสริม” ระหว่างสั่งซื้อ',
+      conditions: ['ลด 5% จากค่าบริการเสริมที่เลือก', 'ส่วนลดจะแสดงเมื่อเลือกบริการเสริมในขั้นตอนที่ 2 ของการสั่งซื้อ', 'ไม่รวมค่าสินค้าและค่าจัดส่ง', 'ใช้ได้ 1 โค้ดต่อคำสั่งซื้อ'],
+      products: ['i-beam', 'tube-40', 'deformed-16'],
+    },
   ];
   // Articles: body is a list of blocks — ['h', text] heading, ['p', text], ['ul', [items]], ['tip', text], ['table', [head], [[row]...]].
   const ARTICLES = [
@@ -129,7 +150,15 @@
     },
   ];
 
-  const COUPONS = { SALE10: { label: 'ส่วนลด 10% สูงสุด 100.00 บาท', min: 1000, pct: 0.1, max: 100, until: '30 ธันวาคม 2569' } };
+  // type: 'pct' = % off products (optionally only some categories), 'ship' = free shipping, 'addon' = % off add-on services.
+  const COUPONS = {
+    SALE10: { label: 'ส่วนลด 10% สูงสุด 100.00 บาท', type: 'pct', min: 1000, pct: 0.1, max: 100, until: '30 ธันวาคม 2569' },
+    STEEL5K: { label: 'ลด 5% หมวดเหล็กโครงสร้าง สูงสุด 2,000 บาท', type: 'pct', min: 5000, pct: 0.05, max: 2000, cats: ['structural', 'hollow'], until: '30 พฤศจิกายน 2569' },
+    FREESHIP: { label: 'ส่งฟรีในเขตกรุงเทพฯ และปริมณฑล', type: 'ship', min: 0, until: '30 พฤศจิกายน 2569' },
+    MEMBER2: { label: 'สมาชิกลดเพิ่ม 2% สูงสุด 1,000 บาท', type: 'pct', min: 0, pct: 0.02, max: 1000, member: true, until: '30 พฤศจิกายน 2569' },
+    LIFT5: { label: 'ลด 5% ค่าบริการเสริม', type: 'addon', min: 0, pct: 0.05, until: '30 พฤศจิกายน 2569' },
+  };
+  const METRO = ['กรุงเทพ', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม'];
   const ADDON_PRICES = { porter: 200, equip1: 450, equip2: 600 };
   const FEE_RATE = 0.07;
   const ORDER_STATUSES = ['รอดำเนินการ', 'กำลังจัดเตรียมสินค้า', 'เตรียมสินค้าแล้ว', 'กำลังจัดส่ง', 'สำเร็จ'];
@@ -213,10 +242,8 @@
     const lines = s.cart.filter((l) => l.sel && product(l.pid).stock > 0);
     const subtotal = lines.reduce((a, l) => a + product(l.pid).price * l.qty, 0);
     const weight = lines.reduce((a, l) => a + lineInfo(l).kg, 0);
-    const c = s.coupon && COUPONS[s.coupon];
-    const discount = c && subtotal >= c.min ? Math.min(c.max, subtotal * c.pct) : 0;
-    const shipping = lines.length ? (subtotal >= 10000 ? 0 : 450) : 0;
     const k = s.checkout;
+    const baseShipping = lines.length ? (subtotal >= 10000 ? 0 : 450) : 0;
     const addonLines = [];
     if (k.addonsWanted) {
       if (k.porter && k.porterQty > 0) addonLines.push(['คนยกสินค้า', ADDON_PRICES.porter, k.porterQty]);
@@ -224,8 +251,23 @@
       if (k.equip && k.equip2) addonLines.push(['อุปกรณ์ยกสินค้า 2', ADDON_PRICES.equip2, 1]);
     }
     const addons = addonLines.reduce((a, [, p, q]) => a + p * q, 0);
-    const fee = Math.round(addons * FEE_RATE * 100) / 100;
-    return { lines, count: lines.length, subtotal, weight, discount, shipping, addonLines, addons, fee, beforeAddons: subtotal - discount + shipping, total: subtotal - discount + shipping + addons + fee };
+
+    // Coupon: work out what it applies to, and why it doesn't when it can't be used.
+    const c = s.coupon && COUPONS[s.coupon];
+    let discount = 0, addonDiscount = 0, shipping = baseShipping, couponNote = '';
+    if (c) {
+      const eligible = c.cats ? lines.filter((l) => c.cats.includes(product(l.pid).cat)).reduce((a, l) => a + product(l.pid).price * l.qty, 0) : subtotal;
+      const address = (s.addresses[k.address] || {}).full || '';
+      if (c.member && !s.user) couponNote = 'ต้องเข้าสู่ระบบสมาชิกก่อนใช้โค้ดนี้';
+      else if (eligible < c.min) couponNote = c.cats ? `ซื้อสินค้าในหมวดที่ร่วมรายการอีก ${(c.min - eligible).toLocaleString('en-US')} บาท เพื่อใช้โค้ดนี้` : 'ยอดสั่งซื้อยังไม่ถึงขั้นต่ำ';
+      else if (c.type === 'pct') discount = Math.min(c.max, Math.round(eligible * c.pct * 100) / 100);
+      else if (c.type === 'ship') { if (METRO.some((m) => address.includes(m))) shipping = 0; else couponNote = 'ที่อยู่จัดส่งอยู่นอกเขตกรุงเทพฯ และปริมณฑล'; }
+      else if (c.type === 'addon') { addonDiscount = Math.round(addons * c.pct * 100) / 100; if (!addons) couponNote = 'ส่วนลดจะใช้เมื่อเลือกบริการเสริมในขั้นตอนถัดไป'; }
+    }
+    const netAddons = addons - addonDiscount;
+    const fee = Math.round(netAddons * FEE_RATE * 100) / 100;
+    return { lines, count: lines.length, subtotal, weight, discount, shipping, baseShipping, addonLines, addons, addonDiscount, fee, couponNote,
+      beforeAddons: subtotal - discount + shipping, total: subtotal - discount + shipping + netAddons + fee };
   }
 
   const actions = {
@@ -264,7 +306,7 @@
       const order = {
         id, date: thaiDate(now), method: method === 'qr' ? 'โมบายแบงก์กิ้ง (QR PromptPay)' : 'บัตรเครดิต/เดบิต', status: 'รอดำเนินการ',
         items: t.lines.map((l) => { const i = lineInfo(l); return { pid: l.pid, name: i.p.name, t: l.t, qty: l.qty, price: i.p.price, kg: +i.kg.toFixed(2), img: i.p.img, grade: i.p.grade, standard: i.p.standard }; }),
-        totals: { subtotal: t.subtotal, discount: t.discount, shipping: t.shipping, addons: t.addons, fee: t.fee, total: t.total, weight: +t.weight.toFixed(2), count: t.count },
+        totals: { subtotal: t.subtotal, discount: t.discount + t.addonDiscount, shipping: t.shipping, addons: t.addons, fee: t.fee, total: t.total, weight: +t.weight.toFixed(2), count: t.count },
         recipient: state.recipients[k.recipient], address: state.addresses[k.address].full, tax: k.taxWanted ? state.taxes[k.tax] : null,
         vehicle: { plate: 'รอจัดสรรรถ', type: t.weight > 1000 ? 'รถบรรทุก 10 ล้อ' : 'รถบรรทุก 6 ล้อ', capacity: t.weight > 1000 ? 15000 : 5000, appointment: 'รอยืนยัน' },
         timeline: [['รอดำเนินการ', `${thaiDate(now)} • ${p(now.getHours())}:${p(now.getMinutes())} น.`]],
@@ -291,7 +333,7 @@
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   window.SHOP = {
-    CATEGORIES, PRODUCTS, FEATURED, PROMOS, ARTICLES, COUPONS, ADDON_PRICES, ORDER_STATUSES, TUBE_SIZES,
+    CATEGORIES, PRODUCTS, FEATURED, PROMOS, ARTICLES, METRO, COUPONS, ADDON_PRICES, ORDER_STATUSES, TUBE_SIZES,
     get state() { return state; }, product, category, tubeSpec, kgPerM, lineInfo, totals, actions,
     onChange: (fn) => listeners.add(fn), money, num, esc,
   };
