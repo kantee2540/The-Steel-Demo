@@ -31,7 +31,7 @@
     { label: 'จัดการเนื้อหา (CMS)', icon: 'globe', children: [
       { label: 'จัดการประกาศ', href: '/cms/announcements' },
       { label: 'บทความ', href: '/cms/articles' },
-      { label: 'จัดการโปรโมชั่น', href: '/cms/promotions' },
+      { label: 'จัดการโปรโมชัน', href: '/cms/promotions' },
       { label: 'ตั้งค่า SEO / AEO', href: '/cms/seo' },
     ] },
     { label: 'จัดการการส่งแจ้งเตือน', icon: 'bell', href: '/notifications' },

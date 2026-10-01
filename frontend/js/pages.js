@@ -183,7 +183,7 @@
           <p class="muted" style="font-size:18px;line-height:1.5">${esc(p.desc)}</p>
         </div>
         <h3 class="h-sec" style="margin:24px 0 12px">ตารางรายละเอียดข้อมูลสินค้า</h3>
-        <div class="table-wrap"><table class="table"><thead><tr><th>ขนาด<br>(กว้างxยาวxสูง)</th><th>ความหนา<br>(Thickness) (มม.)</th><th>น้ำหนัก<br>(Weight) (กก./ม.)</th><th>พื้นที่หน้าตัด<br>(ซม.²)</th><th>โมเมนต์ความเฉื่อย<br>(Ix, Iy) (ซม.⁴)</th><th>โมดูลัสหน้าตัด<br>(Zx, Zy) (ซม.³)</th><th>รัศมีไจเรชั่น<br>(ix, iy) (ซม.)</th></tr></thead>
+        <div class="table-wrap"><table class="table"><thead><tr><th>ขนาด<br>(กว้างxยาวxสูง)</th><th>ความหนา<br>(Thickness) (มม.)</th><th>น้ำหนัก<br>(Weight) (กก./ม.)</th><th>พื้นที่หน้าตัด<br>(ซม.²)</th><th>โมเมนต์ความเฉื่อย<br>(Ix, Iy) (ซม.⁴)</th><th>โมดูลัสหน้าตัด<br>(Zx, Zy) (ซม.³)</th><th>รัศมีไจเรชัน<br>(ix, iy) (ซม.)</th></tr></thead>
           <tbody>${rows.map((r) => `<tr${+r[1] === st.t ? ' style="background:var(--primary-soft)"' : ''}>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
         <h3 class="h-sec" style="margin:24px 0 12px">มาตรฐานที่รองรับ</h3>
         <div class="table"><div class="std-row"><span>${esc(p.standard)}</span><span>มาตรฐานผลิตภัณฑ์อุตสาหกรรม ท่อเหล็กกล้าสำหรับงานโครงสร้างทั่วไป</span></div></div>

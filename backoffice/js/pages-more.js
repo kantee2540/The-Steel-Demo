@@ -150,7 +150,7 @@
     const u = id === 'new' ? null : DB.users.find((x) => x.id === id);
     const [first, ...rest] = u ? u.name.split(' ') : ['', ''];
     let role = u ? u.role : '';
-    const branches = [...new Set(['สำนักงานใหญ่', ...DB.branches.map((b) => b.name), 'คลังหลัก (กรุงเทพ)', 'คลังสาขา 2 (ชลบุรี)', ...DB.users.map((x) => x.branch)])];
+    const branches = [...new Set(['สำนักงานใหญ่', ...DB.branches.map((b) => b.name), 'คลังหลัก (กรุงเทพฯ)', 'คลังสาขา 2 (ชลบุรี)', ...DB.users.map((x) => x.branch)])];
     const roleNames = [...new Set([...DB.roles.map((r) => r.name), ...DB.users.map((x) => x.role)])];
     const hints = Object.fromEntries(DB.roles.filter((r) => r.hint).map((r) => [r.name, r.hint]));
     Object.assign(hints, { 'พนักงานขาย': 'จัดการคำสั่งซื้อ', 'ฝ่ายบัญชี': 'ดูรายงานและราคา' });

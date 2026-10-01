@@ -165,52 +165,52 @@
     });
   };
 
-  // ---------- จัดการโปรโมชั่น ----------
+  // ---------- จัดการโปรโมชัน ----------
   PAGES.promotions = function (root) {
     UI.listPage(root, {
-      title: 'จัดการโปรโมชั่น',
-      actions: addBtn('เพิ่มโปรโมชั่น', '/cms/promotions/new'),
-      search: { label: 'ค้นหาโปรโมชั่น', placeholder: 'ชื่อโปรโมชั่น', keys: ['title'] },
+      title: 'จัดการโปรโมชัน',
+      actions: addBtn('เพิ่มโปรโมชัน', '/cms/promotions/new'),
+      search: { label: 'ค้นหาโปรโมชัน', placeholder: 'ชื่อโปรโมชัน', keys: ['title'] },
       status: { key: 'status', options: ['ใช้งาน', 'หมดอายุ'] },
       filterCols: '3fr 1fr',
       rows: () => DB.promotions,
       cols: [
-        { label: 'ชื่อโปรโมชั่น', cell: (r) => esc(r.title) },
+        { label: 'ชื่อโปรโมชัน', cell: (r) => esc(r.title) },
         { label: 'จำนวนผู้ใช้ที่กดรับ (คน)', cell: (r) => fmt(r.used) },
         { label: 'วันที่ / เวลา เริ่มต้น', cell: (r) => r.start },
         { label: 'วันที่ / เวลา สิ้นสุด', cell: (r) => r.end },
         { label: 'สถานะ', cell: (r) => badge(r.status) },
         { label: 'จัดการ', cell: () => `<span class="actions-cell"><a href="#/cms/promotions/new">แก้ไข</a><a class="link-danger" data-act="delete">ลบ</a></span>` },
       ],
-      onAction: (act, r, render) => confirmDelete(r.title, () => { DB.promotions.splice(DB.promotions.indexOf(r), 1); render(); toast('ลบโปรโมชั่นแล้ว'); }),
+      onAction: (act, r, render) => confirmDelete(r.title, () => { DB.promotions.splice(DB.promotions.indexOf(r), 1); render(); toast('ลบโปรโมชันแล้ว'); }),
     });
   };
 
   PAGES.promotionNew = function (root) {
-    root.innerHTML = `${pageHead('สร้างโปรโมชั่น')}
+    root.innerHTML = `${pageHead('สร้างโปรโมชัน')}
       <div class="stack">
-      <div class="card"><h2 class="card-title" style="margin-bottom:12px">รายละเอียดโปรโมชั่น</h2><div class="form-grid">
-        <div class="field"><label>ชื่อโปรโมชั่น${req}</label><input class="input" data-title required placeholder="เช่น ลดทันที 5% เมื่อซื้อเหล็กเส้นครบ 50,000 บาท"></div>
-        <div class="field"><label>คำอธิบายโปรโมชั่น${req}</label><textarea class="textarea" required placeholder="อธิบายรายละเอียดและเงื่อนไขของโปรโมชัน"></textarea></div>
-        <div class="field"><label>รูปปกโปรโมชั่น${req}</label><div class="hint-red">รองรับ JPG และ PNG จำนวน 1 รูป</div><div data-img></div></div>
+      <div class="card"><h2 class="card-title" style="margin-bottom:12px">รายละเอียดโปรโมชัน</h2><div class="form-grid">
+        <div class="field"><label>ชื่อโปรโมชัน${req}</label><input class="input" data-title required placeholder="เช่น ลดทันที 5% เมื่อซื้อเหล็กเส้นครบ 50,000 บาท"></div>
+        <div class="field"><label>คำอธิบายโปรโมชัน${req}</label><textarea class="textarea" required placeholder="อธิบายรายละเอียดและเงื่อนไขของโปรโมชัน"></textarea></div>
+        <div class="field"><label>รูปปกโปรโมชัน${req}</label><div class="hint-red">รองรับ JPG และ PNG จำนวน 1 รูป</div><div data-img></div></div>
       </div></div>
-      <div class="card"><h2 class="card-title" style="margin-bottom:12px">ระยะเวลาโปรโมชั่น</h2><div class="form-grid cols-2">
+      <div class="card"><h2 class="card-title" style="margin-bottom:12px">ระยะเวลาโปรโมชัน</h2><div class="form-grid cols-2">
         <div class="field"><label>วันที่ / เวลา เริ่มต้น${req}</label><input class="input" type="datetime-local" data-start required></div>
         <div class="field"><label>วันที่ / เวลา สิ้นสุด${req}</label><input class="input" type="datetime-local" data-end required></div>
       </div></div>
-      <div class="card"><h2 class="card-title" style="margin-bottom:12px">สถานะโปรโมชั่น</h2>
+      <div class="card"><h2 class="card-title" style="margin-bottom:12px">สถานะโปรโมชัน</h2>
         <div class="field"><label>สถานะ${req}</label>${selectHtml('pr-status', ['ใช้งาน', 'ปิดใช้งาน'], 'ใช้งาน')}</div></div>
       </div>
-      <div class="form-footer"><a class="btn" href="#/cms/promotions">ยกเลิก</a><button class="btn btn-primary" data-save>บันทึกโปรโมชั่น</button></div>`;
+      <div class="form-footer"><a class="btn" href="#/cms/promotions">ยกเลิก</a><button class="btn btn-primary" data-save>บันทึกโปรโมชัน</button></div>`;
     const img = imageField($('[data-img]', root), 'ลบรูปปก', 'assets/steel-tube.jpg');
     $('[data-save]', root).addEventListener('click', () => {
       if (!validate(root)) return;
-      if (!img.value) return toast('กรุณาอัปโหลดรูปปกโปรโมชั่น', 'warn');
+      if (!img.value) return toast('กรุณาอัปโหลดรูปปกโปรโมชัน', 'warn');
       const s = new Date($('[data-start]', root).value), e = new Date($('[data-end]', root).value);
       if (e <= s) { $('[data-end]', root).classList.add('invalid'); return toast('วันสิ้นสุดต้องอยู่หลังวันเริ่มต้น', 'warn'); }
       const f = (d) => nowThaiFrom(d).replace(/ 25(\d\d) /, ' $1 - ');
       DB.promotions.unshift({ title: $('[data-title]', root).value, used: 0, start: f(s), end: f(e), status: $('#pr-status', root).value === 'ใช้งาน' ? 'ใช้งาน' : 'หมดอายุ' });
-      toast('บันทึกโปรโมชั่นแล้ว');
+      toast('บันทึกโปรโมชันแล้ว');
       location.hash = '#/cms/promotions';
     });
   };
@@ -219,7 +219,7 @@
   PAGES.seo = function (root) {
     const s = DB.seo;
     const L = DB.llms;
-    const INC = [['org', 'ข้อมูลองค์กร'], ['cats', 'หมวดหมู่และรายการสินค้า'], ['faq', 'คำถามที่พบบ่อย (FAQ)'], ['articles', 'บทความ'], ['promos', 'โปรโมชั่น']];
+    const INC = [['org', 'ข้อมูลองค์กร'], ['cats', 'หมวดหมู่และรายการสินค้า'], ['faq', 'คำถามที่พบบ่อย (FAQ)'], ['articles', 'บทความ'], ['promos', 'โปรโมชัน']];
     root.innerHTML = `${pageHead('ตั้งค่า SEO / AEO')}
       <div class="tabs" role="tablist"><button class="on" data-tab="seo">SEO พื้นฐาน</button><button data-tab="ai">AI Crawler &amp; llms.txt</button></div>
       <div class="card" data-pane="seo"><div class="form-grid">
@@ -266,7 +266,7 @@
       if (on('org')) lines.push('', '## เกี่ยวกับเรา', '- [ข้อมูลองค์กร](https://www.thesteel.co.th/about)');
       if (on('cats')) lines.push('', '## สินค้า', ...DB.categories.map((c) => `- [${c.name}](https://www.thesteel.co.th/category/${c.id})`));
       if (on('articles')) lines.push('', '## บทความ', ...DB.articles.filter((a) => a.status === 'เผยแพร่').slice(0, 3).map((a) => `- [${a.title}](https://www.thesteel.co.th/articles)`));
-      if (on('promos')) lines.push('', '## โปรโมชั่น', ...DB.promotions.filter((p) => p.status === 'ใช้งาน').slice(0, 3).map((p) => `- ${p.title}`));
+      if (on('promos')) lines.push('', '## โปรโมชัน', ...DB.promotions.filter((p) => p.status === 'ใช้งาน').slice(0, 3).map((p) => `- ${p.title}`));
       if (on('faq')) lines.push('', '## ข้อมูลสำคัญ', '- [คำถามที่พบบ่อย](https://www.thesteel.co.th/faq)', '- [การจัดส่งและค่าขนส่ง](https://www.thesteel.co.th/shipping)');
       $('[data-llms]', root).textContent = lines.join('\n');
       const auto = $('[data-auto]', root).checked;
@@ -345,7 +345,7 @@
     root.innerHTML = `${pageHead('สร้างการแจ้งเตือนใหม่')}
       <div class="stack">
       <div class="card"><h2 class="card-title" style="margin-bottom:12px">ข้อความแจ้งเตือน</h2><div class="form-grid">
-        <div class="field"><label>หัวข้อแจ้งเตือน${req}</label><input class="input" data-title required value="โปรโมชั่นเหล็กเส้นลดราคา 10%"></div>
+        <div class="field"><label>หัวข้อแจ้งเตือน${req}</label><input class="input" data-title required value="โปรโมชันเหล็กเส้นลดราคา 10%"></div>
         <div class="field"><label>เนื้อหาข้อความ${req}</label><textarea class="textarea" data-body required>พิเศษเฉพาะสัปดาห์นี้! เหล็กเส้นกลมทุกขนาดลดราคา 10% ช้อปเลยก่อนของหมด</textarea></div>
         <div class="field"><label>ลิงก์ปลายทาง (ถ้ามี)</label><input class="input" type="url" value="https://thesteel.co.th/promotions/september-sale"></div>
       </div></div>

@@ -188,7 +188,7 @@
         p.qty = after;
         if (after === 0) p.status = 'หมดสต็อก';
         else if (p.status === 'หมดสต็อก') p.status = 'เปิดขาย';
-        DB.stockMoves.unshift({ at: nowThai(), product: p.name, sku: p.sku, wh: 'คลังหลัก (กรุงเทพ)', type: mode === 'in' ? 'รับเข้า' : 'เบิกออก', qty: (delta >= 0 ? '+' : '-') + Math.abs(delta), left: after, by: DB.user.name, note: $('#adj-note', root).value || '-' });
+        DB.stockMoves.unshift({ at: nowThai(), product: p.name, sku: p.sku, wh: 'คลังหลัก (กรุงเทพฯ)', type: mode === 'in' ? 'รับเข้า' : 'เบิกออก', qty: (delta >= 0 ? '+' : '-') + Math.abs(delta), left: after, by: DB.user.name, note: $('#adj-note', root).value || '-' });
         calc(); renderMoves();
         const label = { in: '<span style="color:#16a34a">+ รับสินค้าเข้าคลัง</span>', out: '<span style="color:#dc2626">- เบิก/จ่ายออกคลัง</span>' }[mode];
         const back = document.createElement('div');
