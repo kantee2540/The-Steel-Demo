@@ -16,14 +16,10 @@
       <div class="dots" data-d="cat"></div>
       <div class="sec-head"><h2>สินค้าแนะนำ</h2><a href="#/products" aria-label="ดูสินค้าทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
       <div class="pgrid">${FEATURED.map((id) => pcard(product(id))).join('')}</div>
-      <div class="sec-head"><h2>บทความ</h2></div>
-      <div class="hscroll" data-c="art">${ARTICLES.map((a) => `<div class="post" data-art="${esc(a.title)}"><img src="${A(a.img)}" alt=""><div class="b"><b>${esc(a.title)}</b><span>${esc(a.sub)}</span></div></div>`).join('')}</div>
+      <div class="sec-head"><h2>บทความ</h2><a href="#/articles" aria-label="ดูบทความทั้งหมด">${icon('chevRight', 26, 2.4)}</a></div>
+      <div class="hscroll" data-c="art">${ARTICLES.slice(0, 4).map((a) => `<a class="post" href="#/articles/${a.id}"><img src="${A(a.img)}" alt=""><div class="b"><b>${esc(a.title)}</b><span>${esc(a.sub)}</span></div></a>`).join('')}</div>
       <div class="dots" data-d="art"></div>`;
     ['promo', 'cat', 'art'].forEach((k) => bindCarousel($(`[data-c="${k}"]`, root), $(`[data-d="${k}"]`, root)));
-    root.addEventListener('click', (e) => {
-      const a = e.target.closest('[data-art]');
-      if (a) { const x = ARTICLES.find((y) => y.title === a.dataset.art); sheet({ title: x.title, body: `<img src="${A(x.img)}" alt="" style="border-radius:12px;margin-bottom:10px"><p>${esc(x.sub)}</p><p class="muted" style="margin-top:8px;font-size:13px">หน้ารายละเอียดบทความยังไม่มีในไฟล์ Figma</p>`, ok: 'ปิด', cancel: '' }); }
-    });
   };
 
   // ---------- รายการสินค้า ----------
@@ -489,5 +485,55 @@
       toast(`ใช้โค้ด ${p.code} กับตะกร้าแล้ว`, 'ok', ' <a href="#/cart">ดูตะกร้า</a>');
       APP.refresh();
     });
+  };
+})();
+
+// ---------- บทความ (list + detail page; replaces the old popup) ----------
+(function () {
+  const { esc, product, ARTICLES } = SHOP;
+  const { icon, $, $$, A, pcard, toast, copyText } = UI;
+  const TOPICS = ['ทั้งหมด', ...new Set(ARTICLES.map((a) => a.topic))];
+  const meta = (a) => `<span>${icon('clock', 13)} ${a.date}</span><span>อ่าน ${a.read} นาที</span>`;
+  let topic = 'ทั้งหมด';
+
+  PAGES.articles = function (root) {
+    root.innerHTML = `<div class="stabs" data-topics>${TOPICS.map((t) => `<button data-topic="${esc(t)}">${esc(t)}</button>`).join('')}</div><div data-list></div>`;
+    function draw() {
+      const list = ARTICLES.filter((a) => topic === 'ทั้งหมด' || a.topic === topic);
+      $$('[data-topic]', root).forEach((b) => b.classList.toggle('on', b.dataset.topic === topic));
+      $('[data-list]', root).innerHTML = list.map((a, i) => i === 0
+        ? `<a class="art-lead" href="#/articles/${a.id}"><img src="${A(a.img)}" alt=""><div><span class="topic">${esc(a.topic)}</span><h2>${esc(a.title)}</h2><p>${esc(a.sub)}</p><div class="meta">${meta(a)}</div></div></a>`
+        : `<a class="art-row" href="#/articles/${a.id}"><img src="${A(a.img)}" alt=""><div><span class="topic">${esc(a.topic)}</span><b>${esc(a.title)}</b><div class="meta">${meta(a)}</div></div></a>`).join('');
+    }
+    root.addEventListener('click', (e) => { const t = e.target.closest('[data-topic]'); if (t) { topic = t.dataset.topic; draw(); } });
+    draw();
+  };
+
+  const block = ([type, a, b]) => {
+    if (type === 'h') return `<h2>${esc(a)}</h2>`;
+    if (type === 'p') return `<p>${esc(a)}</p>`;
+    if (type === 'ul') return `<ul>${a.map((li) => `<li>${esc(li)}</li>`).join('')}</ul>`;
+    if (type === 'tip') return `<aside class="tip-box">${icon('info', 18)}<div><b>เคล็ดลับ</b><p>${esc(a)}</p></div></aside>`;
+    if (type === 'table') return `<div class="art-table"><table class="mtable"><thead><tr>${a.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    return '';
+  };
+
+  PAGES.article = function (root, { id }) {
+    const i = ARTICLES.findIndex((a) => a.id === id);
+    if (i < 0) { root.innerHTML = '<div class="empty">ไม่พบบทความ<a class="btn btn-primary" href="#/articles">ดูบทความทั้งหมด</a></div>'; return; }
+    const a = ARTICLES[i], prev = ARTICLES[i - 1], next = ARTICLES[i + 1];
+    root.className = 'content flush';
+    root.innerHTML = `<img class="art-cover" src="${A(a.img)}" alt="">
+      <article class="art">
+        <span class="topic">${esc(a.topic)}</span><h1>${esc(a.title)}</h1><p class="lede">${esc(a.sub)}</p>
+        <div class="meta">${meta(a)}<span>โดย ${esc(a.author)}</span></div>
+        <div class="art-body">${a.body.map(block).join('')}</div>
+        <div class="art-share"><button class="btn" data-copy>คัดลอกลิงก์บทความ</button></div>
+        <nav class="art-nav">${prev ? `<a href="#/articles/${prev.id}"><small>← ก่อนหน้า</small><b>${esc(prev.title)}</b></a>` : '<span></span>'}${next ? `<a href="#/articles/${next.id}" style="text-align:right"><small>ถัดไป →</small><b>${esc(next.title)}</b></a>` : '<span></span>'}</nav>
+        <div class="sec-head"><h2>สินค้าที่เกี่ยวข้อง</h2></div>
+        <div class="pgrid">${a.products.map(product).filter(Boolean).slice(0, 4).map(pcard).join('')}</div>
+      </article>`;
+    $('.topbar h1').textContent = a.topic;
+    $('[data-copy]', root).addEventListener('click', () => copyText(location.href).then(() => toast('คัดลอกลิงก์บทความแล้ว'), () => toast('คัดลอกไม่สำเร็จ', 'warn')));
   };
 })();

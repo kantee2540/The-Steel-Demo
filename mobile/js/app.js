@@ -19,6 +19,8 @@
     ['/account/:section', 'accountData', 'บัญชีของฉัน', 'account', '#/account'],
     ['/compare', 'compare', 'เปรียบเทียบสินค้า', 'home', '#/products'],
     ['/promotions', 'promotions', 'โปรโมชัน', 'home', '#/'],
+    ['/articles', 'articles', 'บทความ', 'home', '#/'],
+    ['/articles/:id', 'article', 'บทความ', 'home', '#/articles'],
     ['/promotions/:id', 'promotion', 'รายละเอียดโปรโมชัน', 'home', '#/promotions'],
   ];
   const AUTH = ['address', 'addons', 'payment', 'status', 'orders', 'favorites', 'accountData'];
