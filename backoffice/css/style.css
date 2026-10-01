@@ -263,7 +263,6 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .seg button { height: 44px; border: 1px solid var(--border); background: #fff; border-radius: var(--radius-sm); cursor: pointer; font-weight: 500; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .seg button.in.on { background: #e8f9ee; border-color: #16a34a; color: #15803d; }
 .seg button.out.on { background: #fef2f2; border-color: #dc2626; color: #b91c1c; }
-.seg button.set.on { background: #eef3ff; border-color: var(--link); color: var(--link); }
 .calc { display: flex; align-items: center; gap: 18px; justify-content: center; border: 1px solid var(--border); background: #f8f9fb; border-radius: var(--radius-sm); padding: 16px 20px; margin: 24px auto; width: fit-content; max-width: 100%; flex-wrap: wrap; }
 .calc .c-label { font-size: 14px; color: var(--text-muted); }
 .calc .c-val { font-size: 20px; font-weight: 700; }

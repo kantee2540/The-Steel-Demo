@@ -41,6 +41,12 @@
 
 ## บันทึกการทำงาน
 
+### 2026-10-01 — เอาตัวเลือก "ปรับเปลี่ยนจำนวนจริง (=)" ออก (Back Office)
+
+- หน้า "แก้ไข รายการสเปคและราคารายขนาด" (`#/stock/:sku`, `backoffice/js/pages-products.js`) เหลือประเภทการปรับปรุง 2 แบบ: รับสินค้าเข้าคลัง (+) และ เบิก/จ่ายออกคลัง (-)
+- Figma: ลบปุ่มนี้ออกจาก 3 เฟรม `update-product-stock` ใน Back Office › Total Features › ระบบจัดการสินค้า — [287:5490](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=287-5490), [341:11116](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=341-11116), [826:18574](https://www.figma.com/design/ZY7yuUL6N2K6fWAGwfRzUk/The-Steel?node-id=826-18574) ปุ่มที่เหลือ 2 ปุ่มขยายเต็มแถว
+- เฟรม 287:5490 ยังมีแถวประวัติประเภท "ปรับปรุง +20 เส้น" ในตารางประวัติ ไม่ได้แก้ (เป็นข้อมูลตัวอย่าง)
+
 ### 2026-10-01 — แก้ Defect Mobile (6 รายการ)
 
 - **ตะกร้า:** สรุปคำสั่งซื้อไม่แสดงถ้ายังไม่เลือกสินค้า เมื่อเลือกแล้วเป็นแถบบาง (ยอดสุทธิ + ปุ่มถัดไป) แตะยอดเพื่อเปิดสรุปเต็มแบบ bottom sheet (`PAGES.cart`, `.cart-bar`)

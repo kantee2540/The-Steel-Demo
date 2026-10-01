@@ -125,7 +125,7 @@
         <h2 class="card-title">รายละเอียดการปรับปรุงยอดคงคลัง</h2>
         <p class="card-sub">ระบุข้อมูลการปรับสต็อกอย่างชัดเจนเพื่อความแม่นยำ</p>
         <div class="field" style="margin-top:20px"><span class="field-label">ประเภทการปรับปรุง</span>
-          <div class="seg" style="grid-template-columns:repeat(3,1fr)"><button class="in on" data-mode="in">${icon('plus', 18)} รับสินค้าเข้าคลัง (+)</button><button class="out" data-mode="out">${icon('minus', 18)} เบิก/จ่ายออกคลัง (-)</button><button class="set" data-mode="set">${icon('swap', 18)} ปรับเปลี่ยนจำนวนจริง (=)</button></div></div>
+          <div class="seg"><button class="in on" data-mode="in">${icon('plus', 18)} รับสินค้าเข้าคลัง (+)</button><button class="out" data-mode="out">${icon('minus', 18)} เบิก/จ่ายออกคลัง (-)</button></div></div>
         <div class="field" style="margin-top:16px"><label for="adj-qty">จำนวน</label><input class="input" id="adj-qty" type="number" min="0" value="150"></div>
         <div class="field" style="margin-top:16px"><label for="adj-note">หมายเหตุ</label><input class="input" id="adj-note" value="PO-2569-0456"></div>
         <div class="calc">
@@ -145,10 +145,10 @@
     const qtyEl = $('#adj-qty', root);
     function calc() {
       const n = Math.max(0, parseInt(qtyEl.value || '0', 10));
-      const after = mode === 'in' ? p.qty + n : mode === 'out' ? p.qty - n : n;
+      const after = mode === 'in' ? p.qty + n : p.qty - n;
       const delta = after - p.qty;
       $('[data-before]', root).textContent = fmt(p.qty);
-      $('[data-word]', root).textContent = mode === 'set' ? 'ตามนับจริง' : delta >= 0 ? 'เพิ่ม' : 'ลด';
+      $('[data-word]', root).textContent = delta >= 0 ? 'เพิ่ม' : 'ลด';
       const d = $('[data-delta]', root);
       d.textContent = `${delta >= 0 ? '+' : '−'} ${fmt(Math.abs(delta))}`;
       d.style.color = delta >= 0 ? '#16a34a' : '#dc2626';
@@ -183,16 +183,14 @@
       }
       if (e.target.closest('[data-commit]')) {
         const { n, after, delta } = calc();
-        if (mode !== 'set' && !n) return toast('กรุณาระบุจำนวนที่ต้องการปรับปรุง', 'warn');
-        if (mode === 'set' && qtyEl.value === '') return toast('กรุณาระบุจำนวนที่นับได้จริง', 'warn');
-        if (mode === 'set' && !delta) return toast('จำนวนที่นับได้เท่ากับสต็อกในระบบ ไม่ต้องปรับปรุง', 'warn');
+        if (!n) return toast('กรุณาระบุจำนวนที่ต้องการปรับปรุง', 'warn');
         if (after < 0) return toast('จำนวนที่เบิกออกมากกว่าสต็อกคงเหลือ', 'warn');
         p.qty = after;
         if (after === 0) p.status = 'หมดสต็อก';
         else if (p.status === 'หมดสต็อก') p.status = 'เปิดขาย';
-        DB.stockMoves.unshift({ at: nowThai(), product: p.name, sku: p.sku, wh: 'คลังหลัก (กรุงเทพ)', type: mode === 'in' ? 'รับเข้า' : mode === 'out' ? 'เบิกออก' : 'ปรับยอด', qty: (delta >= 0 ? '+' : '-') + Math.abs(delta), left: after, by: DB.user.name, note: $('#adj-note', root).value || '-' });
+        DB.stockMoves.unshift({ at: nowThai(), product: p.name, sku: p.sku, wh: 'คลังหลัก (กรุงเทพ)', type: mode === 'in' ? 'รับเข้า' : 'เบิกออก', qty: (delta >= 0 ? '+' : '-') + Math.abs(delta), left: after, by: DB.user.name, note: $('#adj-note', root).value || '-' });
         calc(); renderMoves();
-        const label = { in: '<span style="color:#16a34a">+ รับสินค้าเข้าคลัง</span>', out: '<span style="color:#dc2626">- เบิก/จ่ายออกคลัง</span>', set: '<span style="color:var(--link)">= ปรับเปลี่ยนจำนวนจริง</span>' }[mode];
+        const label = { in: '<span style="color:#16a34a">+ รับสินค้าเข้าคลัง</span>', out: '<span style="color:#dc2626">- เบิก/จ่ายออกคลัง</span>' }[mode];
         const back = document.createElement('div');
         back.className = 'modal-back';
         back.innerHTML = `<div class="modal center" role="dialog" aria-modal="true"><div class="ok-icon">${icon('check', 34, 2.6)}</div>
