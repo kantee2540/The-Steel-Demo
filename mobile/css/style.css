@@ -228,33 +228,34 @@ img { display: block; max-width: 100%; }
 /* ---------- iPhone frame (desktop only) ---------- */
 .statusbar, .island, .home-indicator { display: none; }
 
+/* Frame styles apply only when JS sets html.framed (wide screen + toggle on). */
 @media (min-width: 640px) {
-  :root { --tabs: 84px; --phone-w: 393px; --phone-h: 852px; --bezel: 12px; --scale: 1; }
-  html, body { height: 100%; overflow: hidden; }
-  body { display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, #eef0f6, #cfd3de); }
+  html.framed { --tabs: 84px; --phone-w: 393px; --phone-h: 852px; --bezel: 12px; --scale: 1; }
+  html.framed, html.framed body { height: 100%; overflow: hidden; }
+  html.framed body { display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, #eef0f6, #cfd3de); }
   /* iPhone 15 Pro: 393×852 screen, titanium edge, side buttons */
-  .device {
+  html.framed .device {
     position: relative; width: calc(var(--phone-w) + var(--bezel) * 2); height: calc(var(--phone-h) + var(--bezel) * 2);
     padding: var(--bezel); border-radius: 68px; background: #121216; flex-shrink: 0;
     box-shadow: 0 0 0 2px #45454c, 0 0 0 5px #8e8e96, 0 0 0 6px #5c5c63, 0 40px 90px rgba(24, 24, 113, .28);
     transform: scale(var(--scale)); transform-origin: center;
   }
-  .device::before, .device::after { content: ''; position: absolute; width: 4px; border-radius: 2px; background: #7c7c84; }
-  .device::before { left: -9px; top: 150px; height: 34px; box-shadow: 0 58px 0 #7c7c84, 0 116px 0 #7c7c84; } /* action + volume buttons */
-  .device::after { right: -9px; top: 250px; height: 96px; }
+  html.framed .device::before, html.framed .device::after { content: ''; position: absolute; width: 4px; border-radius: 2px; background: #7c7c84; }
+  html.framed .device::before { left: -9px; top: 150px; height: 34px; box-shadow: 0 58px 0 #7c7c84, 0 116px 0 #7c7c84; } /* action + volume buttons */
+  html.framed .device::after { right: -9px; top: 250px; height: 96px; }
   /* The screen is the containing block for fixed elements (tab bar, sheets, toasts). */
-  .screen { position: relative; width: 100%; height: 100%; border-radius: 56px; overflow: hidden; background: var(--bg); transform: translateZ(0); }
+  html.framed .screen { position: relative; width: 100%; height: 100%; border-radius: 56px; overflow: hidden; background: var(--bg); transform: translateZ(0); }
   /* 1px taller than the 54px offset of .app so the two navy bars overlap: no seam when the frame is scaled. */
-  .statusbar { display: flex; position: absolute; inset: 0 0 auto 0; height: 55px; z-index: 60; padding: 0 30px 0 44px; align-items: center; justify-content: space-between; background: var(--primary); color: #fff; font-weight: 600; font-size: 16px; }
-  .sb-icons { display: flex; gap: 6px; align-items: center; }
-  .island { display: block; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 20px; background: #000; z-index: 70; }
-  .home-indicator { display: block; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 136px; height: 5px; border-radius: 3px; background: #111; z-index: 150; pointer-events: none; }
+  html.framed .statusbar { display: flex; position: absolute; inset: 0 0 auto 0; height: 55px; z-index: 60; padding: 0 30px 0 44px; align-items: center; justify-content: space-between; background: var(--primary); color: #fff; font-weight: 600; font-size: 16px; }
+  html.framed .sb-icons { display: flex; gap: 6px; align-items: center; }
+  html.framed .island { display: block; position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; border-radius: 20px; background: #000; z-index: 70; }
+  html.framed .home-indicator { display: block; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 136px; height: 5px; border-radius: 3px; background: #111; z-index: 150; pointer-events: none; }
   /* The app scrolls inside the screen under the status bar. */
-  .app { position: absolute; top: 54px; left: 0; right: 0; bottom: 0; max-width: none; min-height: 0; overflow-y: auto; box-shadow: none; scrollbar-width: none; overscroll-behavior: contain; }
-  .app::-webkit-scrollbar { display: none; }
-  .tabbar { max-width: none; padding-bottom: 18px; }
-  .sheet { max-width: none; padding-bottom: 34px; }
-  .gallery .hscroll > img { width: calc(var(--phone-w) - 32px); }
+  html.framed .app { position: absolute; top: 54px; left: 0; right: 0; bottom: 0; max-width: none; min-height: 0; overflow-y: auto; box-shadow: none; scrollbar-width: none; overscroll-behavior: contain; }
+  html.framed .app::-webkit-scrollbar { display: none; }
+  html.framed .tabbar { max-width: none; padding-bottom: 18px; }
+  html.framed .sheet { max-width: none; padding-bottom: 34px; }
+  html.framed .gallery .hscroll > img { width: calc(var(--phone-w) - 32px); }
 }
 
 /* ---------- Defect fixes: cart bar, account data, compare ---------- */
@@ -287,6 +288,16 @@ img { display: block; max-width: 100%; }
 .pcard .im .cmp { font-size: 11px; }
 /* Lift toasts above the compare bar when it is visible. */
 body:has(.compare-bar) .toasts { bottom: calc(var(--tabs) + 72px); }
+
+/* iPhone frame on/off switch — desktop only (no frame exists on real phones). */
+.frame-toggle { display: none; }
+@media (min-width: 640px) {
+  .frame-toggle { display: inline-flex; position: fixed; top: 16px; right: 16px; z-index: 300; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border); border-radius: 50px; padding: 6px 8px 6px 14px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; box-shadow: 0 4px 14px rgba(24,24,113,.12); user-select: none; }
+  .frame-toggle .sw { width: 40px; height: 22px; border-radius: 11px; background: #c9ccd6; position: relative; transition: background .15s; }
+  .frame-toggle .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .frame-toggle[aria-checked="true"] .sw { background: var(--primary); }
+  .frame-toggle[aria-checked="true"] .sw::after { transform: translateX(18px); }
+}
 
 /* ---------- Promotions (matches the website) ---------- */
 .promo-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 14px; overflow: hidden; margin-bottom: 12px; }

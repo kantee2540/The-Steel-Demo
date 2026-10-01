@@ -50,7 +50,16 @@
   }
 
   // In the desktop iPhone frame the app scrolls inside .app; on phones the page itself scrolls.
-  const framed = () => matchMedia('(min-width: 640px)').matches;
+  // The iPhone frame shows on wide screens unless the viewer switched it off (remembered per browser).
+  const wide = () => matchMedia('(min-width: 640px)').matches;
+  const framePref = () => { try { return localStorage.getItem('m-frame') !== 'off'; } catch { return true; } };
+  const framed = () => wide() && framePref();
+  function applyFrame() {
+    const on = framed();
+    document.documentElement.classList.toggle('framed', on);
+    const t = document.querySelector('[data-frame-toggle]');
+    if (t) t.setAttribute('aria-checked', String(framePref()));
+  }
   const scroller = () => (framed() ? $('.app') : document.scrollingElement);
 
   const ACCOUNT_TITLES = { recipients: 'ข้อมูลผู้รับสินค้า', addresses: 'ข้อมูลที่อยู่จัดส่ง', taxes: 'ข้อมูลใบกำกับภาษี', quotes: 'ประวัติการขอใบเสนอราคา' };
@@ -124,7 +133,15 @@
     const el = document.querySelector('[data-clock]');
     if (el) el.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
-  window.addEventListener('resize', fit);
-  window.addEventListener('DOMContentLoaded', () => { fit(); clock(); setInterval(clock, 15000); });
+  window.addEventListener('resize', () => { applyFrame(); fit(); });
+  applyFrame(); // before first paint, so the page doesn't flash framed/unframed
+  window.addEventListener('DOMContentLoaded', () => { applyFrame(); fit(); clock(); setInterval(clock, 15000); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-frame-toggle]')) return;
+    const y = scroller().scrollTop;
+    try { localStorage.setItem('m-frame', framePref() ? 'off' : 'on'); } catch {}
+    applyFrame();
+    scroller().scrollTop = y; // keep the reading position when switching
+  });
   window.APP = { refresh: () => render(true) };
 })();
