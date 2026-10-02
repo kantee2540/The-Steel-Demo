@@ -194,12 +194,11 @@
 
   // ---------- Page ----------
   // Filter state survives navigating away and back within the session.
+  // branch/cat stay 'all': the executive dashboard always shows the whole business (no branch/category filter).
   const F = { period: '1 ปี', from: null, to: null, branch: 'all', cat: 'all', split: 'cat' };
 
   function admin(root) {
     if (!F.from) [F.from, F.to] = periodRange(F.period);
-    const branchOpts = [['all', 'ทุกสาขา'], ...DB.branches.map((b) => [b.code, b.name])];
-    const catOpts = [['all', 'ทุกหมวดหมู่'], ...CATS.map((c, i) => [String(i), c.name])];
     root.innerHTML = `
       ${pageHead('ภาพรวม', '<button class="btn" data-xls>Export Excel</button><button class="btn btn-primary" data-pdf>Export PDF</button>')}
       <div class="card">
@@ -210,11 +209,6 @@
             <button class="chip" data-p="custom">${icon('calendar', 14)} <span data-custom-label>กำหนดเอง</span></button>
           </div>
         </div>
-        <div class="dash-filters">
-          <label class="field"><span class="field-label">สาขา</span><select class="select" data-f="branch">${branchOpts.map(([v, l]) => `<option value="${v}" ${F.branch === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
-          <label class="field"><span class="field-label">หมวดหมู่สินค้า</span><select class="select" data-f="cat">${catOpts.map(([v, l]) => `<option value="${v}" ${F.cat === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
-          <button class="btn" data-clear hidden>${icon('x', 16)} ล้างตัวกรอง</button>
-        </div>
         <div data-body></div>
       </div>`;
     const body = $('[data-body]', root);
@@ -222,7 +216,6 @@
     function render() {
       $$('[data-p]', root).forEach((c) => c.classList.toggle('on', c.dataset.p === F.period));
       $('[data-custom-label]', root).textContent = F.period === 'custom' ? `${thDate(F.from)} – ${thDate(F.to)}` : 'กำหนดเอง';
-      $('[data-clear]', root).hidden = F.branch === 'all' && F.cat === 'all';
       const pf = yearBack(F.from), pt = yearBack(F.to);
       const hasPrev = pf >= 0;
       $('[data-range]', root).textContent = `${thDate(F.from)} – ${thDate(F.to)} · เทียบกับช่วงเดียวกันปีก่อน${hasPrev ? '' : ' (ไม่มีข้อมูลเปรียบเทียบ)'}`;
@@ -248,7 +241,6 @@
 
       const split = F.split === 'cat'
         ? CATS.map((cat, i) => ({ name: cat.name, color: cat.color, amount: cur.reduce((s, x) => s + x.lines.filter((l) => l.cat === i).reduce((a, l) => a + l.amount, 0), 0) }))
-          .filter((x, i) => F.cat === 'all' || i === +F.cat)
         : (() => {
           const by = {};
           cur.forEach((x) => { by[x.o.branch] = (by[x.o.branch] || 0) + x.lines.reduce((a, l) => a + l.amount, 0); });
@@ -307,20 +299,18 @@
       if (p) { if (p.dataset.p === 'custom') return openCustom(); F.period = p.dataset.p; [F.from, F.to] = periodRange(F.period); render(); }
       const s = e.target.closest('[data-s]');
       if (s) { F.split = s.dataset.s; render(); }
-      if (e.target.closest('[data-clear]')) { F.branch = 'all'; F.cat = 'all'; $$('[data-f]', root).forEach((el) => (el.value = 'all')); render(); }
       if (e.target.closest('[data-xls]')) {
-        const L = render.last, br = branchOpts.find((o) => o[0] === F.branch)[1], ct = catOpts.find((o) => o[0] === F.cat)[1];
+        const L = render.last;
         downloadCsv(`sales-overview_${iso(F.from)}_${iso(F.to)}.csv`, [
-          ['ช่วงวันที่', `${thDate(F.from)} – ${thDate(F.to)}`], ['สาขา', br], ['หมวดหมู่', ct], [],
+          ['ช่วงวันที่', `${thDate(F.from)} – ${thDate(F.to)}`], [],
           ['ยอดขาย (บาท)', L.k.sales], ['จำนวนออเดอร์', L.k.count], ['ยอดเฉลี่ยต่อออเดอร์', Math.round(L.k.avg)], ['ลูกค้าใหม่', L.k.neu], ['ลูกค้าซื้อซ้ำ', L.k.ret], [],
           ['ช่วง', 'ยอดขาย (บาท)', 'ช่วงเดียวกันปีก่อน (บาท)'], ...L.series.ranges.map((r, i) => [r, L.series.cur[i], L.series.prev[i] ?? '']), [],
           ['อันดับ', 'สินค้า', 'จำนวน (ชิ้น)', 'ยอดขาย (บาท)'], ...L.top.map((p, i) => [i + 1, p.name, p.qty, p.amount]),
         ]);
-        toast('ส่งออกไฟล์ Excel (CSV) ตามตัวกรองแล้ว');
+        toast('ส่งออกไฟล์ Excel (CSV) แล้ว');
       }
       if (e.target.closest('[data-pdf]')) window.print();
     });
-    root.addEventListener('change', (e) => { const f = e.target.dataset.f; if (f) { F[f] = e.target.value; render(); } });
     render();
   }
 
