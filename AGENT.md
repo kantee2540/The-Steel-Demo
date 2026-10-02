@@ -45,8 +45,8 @@
 
 ### 2026-10-02 — โลโก้ใหม่ตาม Figma + เปลี่ยนชื่อเป็น The Steel D
 
-- โลโก้: export จาก Figma component "Logo 2 / Color=White" (1551:23397) เป็น `assets/logo.svg` ในทั้ง 3 โฟลเดอร์ (ไฟล์เดียวกัน) แทน `logo.png` เดิม (ไฟล์ png เก่ายังอยู่แต่ไม่มีใครใช้แล้ว)
-- ขนาดตาม Figma: header Back Office 124×63, Front End 110×56, Mobile 72×36, หน้า login 198×101
+- โลโก้: export จาก Figma component "Logo 4 / Color=Color3" (1565:30849) — แบบแนวนอน THE | STEEL | D — เป็น `assets/logo.svg` ในทั้ง 3 โฟลเดอร์ (ไฟล์เดียวกัน) แทน `logo.png` เดิม (ไฟล์ png เก่ายังอยู่แต่ไม่มีใครใช้แล้ว) ก่อนหน้านี้ใช้ "Logo 2" แต่ Figma เปลี่ยนเป็น Logo 4 ในวันเดียวกัน
+- ขนาดตาม Figma: header Back Office 210×42, Front End 270×55, Mobile 158×32, หน้า login 378×77 (จอแคบ: Back Office 160×32, Front End 176×36)
 - ชื่อ "Easy Steel" ทุกที่ (title แท็บ, alt, aria-label, ข้อความหน้ารวม) เปลี่ยนเป็น "The Steel D"
 - ไม่ได้เปลี่ยน: ไอคอนเล็ก `favicon.png` (ใช้ในหน้า SEO preview), คำว่า "The Steel" ในเนื้อหา/ชื่อบริษัท
 
