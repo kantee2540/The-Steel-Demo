@@ -42,8 +42,8 @@ h1, h2, h3, p { margin: 0; }
   background: var(--primary); color: #fff;
   display: flex; align-items: center; justify-content: space-between; padding: 16px 32px;
 }
-.header .logo { display: block; width: 210px; height: 42px; }
-.header .logo img { width: 210px; height: 42px; display: block; }
+.header .logo { display: block; width: 150px; height: 47px; }
+.header .logo img { width: 150px; height: 47px; display: block; }
 .header-right { display: flex; align-items: center; gap: 38px; }
 .icon-btn { background: none; border: 0; color: inherit; cursor: pointer; padding: 4px; display: inline-flex; border-radius: 8px; position: relative; }
 .icon-btn:hover { background: rgba(255,255,255,0.08); }
@@ -313,7 +313,7 @@ table.tbl { width: 100%; border-collapse: collapse; }
 /* ---------- Login ---------- */
 .login { display: grid; grid-template-columns: 760fr 752fr; min-height: 100vh; }
 .login-brand { background: var(--primary); color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 80px; }
-.login-brand img { width: 378px; max-width: 100%; margin-bottom: 24px; }
+.login-brand img { width: 220px; max-width: 100%; margin-bottom: 24px; }
 .login-brand h1 { font-size: 30px; font-weight: 700; margin-bottom: 24px; }
 .login-brand p { font-size: 16px; line-height: 1.4; max-width: 580px; opacity: .92; }
 .login-form { display: flex; align-items: center; justify-content: center; padding: 40px 24px; background: var(--bg); }
@@ -349,8 +349,8 @@ table.tbl { width: 100%; border-collapse: collapse; }
   .hamburger { display: inline-flex; }
   .header { padding: 12px 16px; height: 72px; }
   :root { --header-h: 72px; }
-  .header .logo { width: 160px; height: 32px; }
-  .header .logo img { width: 160px; height: 32px; }
+  .header .logo { width: 120px; height: 38px; }
+  .header .logo img { width: 120px; height: 38px; }
   .header-left { display: flex; align-items: center; gap: 12px; }
   .header-right { gap: 16px; }
   .user-chip .name { display: none; }

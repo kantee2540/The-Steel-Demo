@@ -28,8 +28,8 @@ img { display: block; max-width: 100%; }
 .app { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 20px 60px rgba(24,24,113,.15); }
 .topbar { position: sticky; top: 0; z-index: 30; height: var(--top); background: var(--primary); color: #fff; display: flex; align-items: center; gap: 12px; padding: 0 16px; }
 .topbar h1 { font-size: 20px; font-weight: 700; flex: 1; }
-.topbar .logo { width: 158px; height: 32px; }
-.topbar .logo img { width: 158px; height: 32px; }
+.topbar .logo { width: 100px; height: 32px; }
+.topbar .logo img { width: 100px; height: 32px; display: block; }
 .topbar button, .topbar a.ic { background: none; border: 0; color: #fff; padding: 6px; margin-left: -6px; display: flex; cursor: pointer; }
 .topbar .ic.right { margin-left: auto; margin-right: -6px; }
 .topsearch { flex: 1; display: flex; align-items: center; background: #fff; border-radius: 8px; height: 38px; padding: 0 10px; gap: 6px; color: var(--muted); }
