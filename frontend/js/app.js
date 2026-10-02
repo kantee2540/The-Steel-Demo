@@ -28,7 +28,7 @@
     const s = SHOP.state;
     const cartCount = s.cart.length;
     return `<div class="header-inner">
-      <a class="logo" href="#/" aria-label="The Steel D หน้าแรก"><img src="${A('logo.svg')}" alt="The Steel D"></a>
+      <a class="logo" href="#/" aria-label="Steel D หน้าแรก"><img src="${A('logo.svg')}" alt="Steel D"></a>
       <div class="searchbar">
         <button class="cat-btn" data-catmenu aria-haspopup="true">${icon('grid', 25)}<span>หมวดหมู่</span>${icon('chevDown', 20, 2.4)}</button>
         <form data-search><input name="q" placeholder="ค้นหาสินค้า เช่น เหล็กแผ่น, เหล็กตัวซี" value="${esc(current.query.q || '')}" aria-label="ค้นหาสินค้า"><button aria-label="ค้นหา">${icon('search', 20, 2)}</button></form>
@@ -67,7 +67,7 @@
     // Fresh node per render so page-level listeners never stack up across renders.
     const page = $('#page').cloneNode(false);
     $('#page').replaceWith(page);
-    document.title = 'The Steel D — ร้านค้าออนไลน์';
+    document.title = 'Steel D — ร้านค้าออนไลน์';
     PAGES[current.key](page, current.params, current.query);
     $('#compare-host').innerHTML = compareBar();
     // Reserve room so the fixed compare bar never covers the end of the page.

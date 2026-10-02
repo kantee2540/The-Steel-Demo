@@ -38,7 +38,7 @@
   }
 
   function topbar(r) {
-    if (!r.title) return `<a class="logo" href="#/" aria-label="The Steel D หน้าแรก"><img src="${A('logo.svg')}" alt="The Steel D"></a>
+    if (!r.title) return `<a class="logo" href="#/" aria-label="Steel D หน้าแรก"><img src="${A('logo.svg')}" alt="Steel D"></a>
       <a class="ic right" href="#/products?focus=1" aria-label="ค้นหาสินค้า">${icon('search', 26, 2)}</a>`;
     return `${r.parent ? `<button data-back aria-label="ย้อนกลับ">${icon('back', 26, 2.4)}</button>` : ''}<h1>${r.title}</h1>`;
   }

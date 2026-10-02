@@ -118,7 +118,7 @@
       <header class="header">
         <div class="header-left">
           <button class="icon-btn hamburger" data-burger aria-label="เมนู">${icon('menu', 26)}</button>
-          <a class="logo" href="#/dashboard" aria-label="The Steel D หน้าแรก"><img src="assets/logo.svg" alt="The Steel D"></a>
+          <a class="logo" href="#/dashboard" aria-label="Steel D หน้าแรก"><img src="assets/logo.svg" alt="Steel D"></a>
         </div>
         <div class="header-right">
           <div style="position:relative">
@@ -202,7 +202,7 @@
       shellMounted = false;
       if (!AUTH_PAGES[path]) { location.replace('#/login'); return; }
       PAGES[AUTH_PAGES[path]](app);
-      document.title = 'เข้าสู่ระบบ · The Steel D Back Office';
+      document.title = 'เข้าสู่ระบบ · Steel D Back Office';
       return;
     }
     if (!shellMounted) { app.innerHTML = shellHtml(); shellMounted = true; }
@@ -214,7 +214,7 @@
     const page = document.getElementById('page').cloneNode(false);
     document.getElementById('page').replaceWith(page);
     PAGES[m.key](page, m.params, navLabelFor(m.nav));
-    document.title = `${navLabelFor(m.nav) || 'ภาพรวม'} · The Steel D Back Office`;
+    document.title = `${navLabelFor(m.nav) || 'ภาพรวม'} · Steel D Back Office`;
     window.scrollTo(0, 0);
   }
 

@@ -7,7 +7,7 @@
     app.innerHTML = `
       <div class="login">
         <section class="login-brand">
-          <img src="assets/logo.svg" alt="The Steel D">
+          <img src="assets/logo.svg" alt="Steel D">
           <h1>ระบบจัดการข้อมูลหลังบ้าน</h1>
           <p>จัดการสินค้า สต็อก คำสั่งซื้อ และข้อมูลลูกค้าของ The Steel ได้ในที่เดียว ปลอดภัย รวดเร็ว และเชื่อมต่อกับระบบ SAP แบบเรียลไทม์</p>
         </section>
