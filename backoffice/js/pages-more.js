@@ -466,7 +466,7 @@
 
   // ---------- Auth pages (ลืมรหัสผ่าน / ตั้งรหัสผ่านใหม่ / ไม่มีสิทธิ์) ----------
   function authShell(app, inner) {
-    app.innerHTML = `<div class="login"><section class="login-brand"><img src="assets/logo.png" alt="Easy Steel"><h1>ระบบจัดการข้อมูลหลังบ้าน</h1>
+    app.innerHTML = `<div class="login"><section class="login-brand"><img src="assets/logo.svg" alt="The Steel D"><h1>ระบบจัดการข้อมูลหลังบ้าน</h1>
       <p>จัดการสินค้า สต็อก คำสั่งซื้อ และข้อมูลลูกค้าของ The Steel ได้ในที่เดียว ปลอดภัย รวดเร็ว และเชื่อมต่อกับระบบ SAP แบบเรียลไทม์</p></section>
       <section class="login-form"><div style="width:360px;max-width:100%">${inner}</div></section></div>`;
   }

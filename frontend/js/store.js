@@ -1,4 +1,4 @@
-// Shared shop model for the Easy Steel storefront prototypes (Front End + Mobile).
+// Shared shop model for the The Steel D storefront prototypes (Front End + Mobile).
 // Catalog, cart, coupon, add-ons, totals and orders. State persists in localStorage.
 (function () {
   const CATEGORIES = [

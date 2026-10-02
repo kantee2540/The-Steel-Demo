@@ -687,7 +687,7 @@
       <div class="section-head"><h2>สินค้าที่เกี่ยวข้องกับบทความ</h2><a href="#/products">ดูทั้งหมด ${icon('chevRight', 22, 2.4)}</a></div>
       <div class="grid-3">${a.products.map(product).filter(Boolean).map(productCard).join('')}</div>
     </div>`;
-    document.title = `${a.title} · Easy Steel`;
+    document.title = `${a.title} · The Steel D`;
     root.addEventListener('click', (e) => {
       if (e.target.closest('[data-print]')) window.print();
       if (e.target.closest('[data-copy]')) {
@@ -771,7 +771,7 @@
       <div class="section-head"><h2>โปรโมชันอื่น</h2><a href="#/promotions">ดูทั้งหมด ${icon('chevRight', 22, 2.4)}</a></div>
       <div class="grid-3">${PROMOS.filter((x) => x.id !== p.id).map((x) => postCard(x, true)).join('')}</div>
     </div>`;
-    document.title = `${p.title} · Easy Steel`;
+    document.title = `${p.title} · The Steel D`;
     bindCopy(root);
     $('[data-apply]', root).addEventListener('click', () => {
       actions.applyCoupon(p.code);
