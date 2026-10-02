@@ -33,8 +33,8 @@ img { display: block; max-width: 100%; }
 /* ---------- Header ---------- */
 .header { background: var(--primary); color: #fff; position: sticky; top: 0; z-index: 30; }
 .header-inner { max-width: 1500px; margin: 0 auto; height: 93px; display: flex; align-items: center; gap: 24px; padding: 0 24px; }
-.header .logo { width: 270px; height: 55px; flex-shrink: 0; }
-.header .logo img { width: 270px; height: 55px; }
+.header .logo { width: 220px; height: 45px; flex-shrink: 0; }
+.header .logo img { width: 220px; height: 45px; }
 .searchbar { display: flex; flex: 0 1 704px; margin-left: auto; position: relative; }
 .cat-btn { display: flex; align-items: center; gap: 8px; height: 55px; padding: 0 16px; border: 1px solid #fff; border-radius: 8px 0 0 8px; background: transparent; color: #fff; font-size: 20px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .searchbar form { flex: 1; display: flex; align-items: center; background: #fff; border-radius: 0 10px 10px 0; height: 55px; padding: 0 20px; }
