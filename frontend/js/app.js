@@ -48,7 +48,7 @@
     if (!s.compare.length || current.key === 'compare') return '';
     return `<aside class="compare-bar" aria-label="เปรียบเทียบสินค้า">
       <div><h3>เปรียบเทียบสินค้า</h3><p class="muted">เลือกสินค้าเพื่อเปรียบเทียบได้มากสุด 4 รายการ</p></div>
-      <div class="slots">${s.compare.map((id) => { const p = product(id); return `<div class="cmp-mini"><img src="${A(p.img)}" alt=""><b>${esc(p.name)}</b><button data-compare="${id}">${icon('trash', 16)} ลบรายการ</button></div>`; }).join('')}</div>
+      <div class="slots">${s.compare.map((id) => { const p = product(id); return `<div class="cmp-mini"><img src="${A(p.img)}" alt=""><b title="${esc(p.name)}">${esc(p.name)}</b><button data-compare="${id}" aria-label="นำ ${esc(p.name)} ออกจากการเปรียบเทียบ" title="ลบรายการ">${icon('x', 16, 2.4)}</button></div>`; }).join('')}</div>
       <div class="acts"><button class="btn btn-danger" data-clear-compare>ลบทั้งหมด</button><a class="btn btn-primary" href="#/compare">เปรียบเทียบ (${s.compare.length})</a></div>
     </aside>`;
   }
@@ -70,7 +70,9 @@
     document.title = 'The Steel D — ร้านค้าออนไลน์';
     PAGES[current.key](page, current.params, current.query);
     $('#compare-host').innerHTML = compareBar();
-    document.body.style.paddingBottom = $('.compare-bar') ? '320px' : '';
+    // Reserve room so the fixed compare bar never covers the end of the page.
+    const bar = $('.compare-bar');
+    document.body.style.paddingBottom = bar ? bar.offsetHeight + 16 + 'px' : '';
     window.scrollTo(0, keepScroll ? y : 0);
   }
   const refresh = () => render(true);
